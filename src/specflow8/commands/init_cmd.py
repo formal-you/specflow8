@@ -55,6 +55,7 @@ def register(app: typer.Typer) -> None:
             cfg=cfg,
             language=cfg.language,
             with_optional_docs=with_optional_docs,
+            include_meta_docs=True,
             force=force,
         )
         kit_created: list[str] = []

@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
 
-from specflow8.constants import CORE_DOCS
+from specflow8.constants import CORE_DOCS, PR_TEMPLATE_DOC
 from specflow8.git_trace import (
     commit_matches_template,
     has_uncommitted_doc_changes,
@@ -61,6 +61,7 @@ def checker_registry() -> dict[str, Checker]:
         "dependency_cycle": _check_dependency_cycle,
         "commit_trace": _check_commit_trace,
         "boundary_violation": _check_boundary_violation,
+        "pr_template": _check_pr_template,
     }
 
 
@@ -482,4 +483,44 @@ def _check_commit_trace(rule: ExecutableRule, ctx: AnalyzeContext) -> list[dict[
                 commit_matches_template(commit, fid) for commit in feature_commits
             ):
                 issues.append({"doc": "git log", "feature_id": fid})
+    return issues
+
+
+def _check_pr_template(rule: ExecutableRule, ctx: AnalyzeContext) -> list[dict[str, Any]]:
+    kind = str(rule.params.get("kind", "missing")).strip().lower()
+    issues: list[dict[str, Any]] = []
+    path = ctx.root / PR_TEMPLATE_DOC
+    if kind == "missing":
+        if not path.exists():
+            issues.append({"doc": PR_TEMPLATE_DOC, "feature_id": ctx.feature})
+        return issues
+
+    if not path.exists():
+        return [{"doc": PR_TEMPLATE_DOC, "feature_id": ctx.feature}]
+
+    text = ctx._cache.get("pr_template_text")
+    if text is None:
+        text = read_text(path)
+        ctx._cache["pr_template_text"] = text
+
+    if kind == "required_tokens":
+        for token in rule.params.get("required_tokens", []):
+            if token not in text:
+                issues.append(
+                    {
+                        "doc": PR_TEMPLATE_DOC,
+                        "feature_id": ctx.feature,
+                        "token": token,
+                    }
+                )
+    if kind == "required_patterns":
+        for pattern in rule.params.get("required_patterns", []):
+            if re.search(pattern, text, re.MULTILINE) is None:
+                issues.append(
+                    {
+                        "doc": PR_TEMPLATE_DOC,
+                        "feature_id": ctx.feature,
+                        "pattern": pattern,
+                    }
+                )
     return issues

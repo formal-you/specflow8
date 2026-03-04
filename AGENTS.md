@@ -7,7 +7,7 @@
 - Review Cadence: Per milestone / Review Cadence: 每个里程碑
 - Upstream/Downstream:
   - Upstream: Team collaboration policy / Upstream: 团队协作策略
-  - Downstream: README.md, ARCHITECTURE.md, DOMAIN.md, STATE.md, PLAN.md, TASKS.md, DECISIONS.md
+  - Downstream: README.md, ARCHITECTURE.md, DOMAIN.md, STATE.md, PLAN.md, TASKS.md, DECISIONS.md, .github/PULL_REQUEST_TEMPLATE.md
 
 ## Agent Constitution / Agent 宪法
 - Keep document boundaries explicit. / 保持文档边界清晰。
@@ -23,6 +23,7 @@
 - PLAN.md
 - TASKS.md
 - DECISIONS.md
+- .github/PULL_REQUEST_TEMPLATE.md
 
 ## Commit Message Template / 提交信息模板
 ```text

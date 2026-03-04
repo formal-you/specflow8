@@ -14,6 +14,7 @@ def test_full_flow():
     with runner.isolated_filesystem():
         result = runner.invoke(app, ["init", "--root", ".", "--with-optional-docs"])
         assert result.exit_code == 0
+        assert Path(".github/PULL_REQUEST_TEMPLATE.md").exists()
 
         result = runner.invoke(app, ["specify", "Build searchable dashboard"])
         assert result.exit_code == 0
@@ -382,3 +383,95 @@ def test_analyze_reports_commit_trace_missing_when_no_feature_commit():
         )
         assert result.exit_code == 1
         assert "COMMIT_TRACE_MISSING" in result.stdout
+
+
+def test_analyze_reports_pr_template_missing():
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        assert runner.invoke(app, ["init", "--root", "."]).exit_code == 0
+        assert runner.invoke(app, ["specify", "Build task triage board"]).exit_code == 0
+        assert (
+            runner.invoke(app, ["plan", "--feature", "F-001", "Python + FastAPI"]).exit_code
+            == 0
+        )
+        assert runner.invoke(app, ["tasks", "--feature", "F-001"]).exit_code == 0
+        assert (
+            runner.invoke(
+                app,
+                [
+                    "decide",
+                    "--feature",
+                    "F-001",
+                    "--title",
+                    "Use API-first",
+                    "--context",
+                    "Need stable contracts",
+                    "--choice",
+                    "Adopt API-first design",
+                ],
+            ).exit_code
+            == 0
+        )
+        Path(".github/PULL_REQUEST_TEMPLATE.md").unlink()
+
+        result = runner.invoke(
+            app,
+            [
+                "analyze",
+                "--feature",
+                "F-001",
+                "--mode",
+                "strict",
+                "--no-enforce-commit-trace",
+            ],
+        )
+        assert result.exit_code == 1
+        assert "PR_TEMPLATE_MISSING" in result.stdout
+
+
+def test_analyze_reports_pr_template_required_field_missing():
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        assert runner.invoke(app, ["init", "--root", "."]).exit_code == 0
+        assert runner.invoke(app, ["specify", "Build task triage board"]).exit_code == 0
+        assert (
+            runner.invoke(app, ["plan", "--feature", "F-001", "Python + FastAPI"]).exit_code
+            == 0
+        )
+        assert runner.invoke(app, ["tasks", "--feature", "F-001"]).exit_code == 0
+        assert (
+            runner.invoke(
+                app,
+                [
+                    "decide",
+                    "--feature",
+                    "F-001",
+                    "--title",
+                    "Use API-first",
+                    "--context",
+                    "Need stable contracts",
+                    "--choice",
+                    "Adopt API-first design",
+                ],
+            ).exit_code
+            == 0
+        )
+
+        pr_template = Path(".github/PULL_REQUEST_TEMPLATE.md")
+        text = pr_template.read_text(encoding="utf-8")
+        text = text.replace("- Related ADR: ADR-XXX", "- Related ADR:")
+        pr_template.write_text(text, encoding="utf-8")
+
+        result = runner.invoke(
+            app,
+            [
+                "analyze",
+                "--feature",
+                "F-001",
+                "--mode",
+                "strict",
+                "--no-enforce-commit-trace",
+            ],
+        )
+        assert result.exit_code == 1
+        assert "PR_TEMPLATE_FIELD_MISSING" in result.stdout

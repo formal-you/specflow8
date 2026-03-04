@@ -12,6 +12,7 @@ CORE_DOCS = [
 ]
 
 OPTIONAL_DOCS = ["RUNBOOK.md", "INTERFACES.md"]
+PR_TEMPLATE_DOC = ".github/PULL_REQUEST_TEMPLATE.md"
 
 FEATURE_START_FMT = "<!-- specflow8:feature:{feature_id}:start -->"
 FEATURE_END_FMT = "<!-- specflow8:feature:{feature_id}:end -->"

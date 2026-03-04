@@ -8,7 +8,7 @@ from pathlib import Path
 from jinja2 import Template
 
 from .config import Specflow8Config
-from .constants import CORE_DOCS, OPTIONAL_DOCS
+from .constants import CORE_DOCS, OPTIONAL_DOCS, PR_TEMPLATE_DOC
 from .io_markdown import (
     find_feature_ids,
     read_text,
@@ -28,6 +28,7 @@ TEMPLATE_MAP = {
     "DECISIONS.md": "core/DECISIONS.md.j2",
     "RUNBOOK.md": "optional/RUNBOOK.md.j2",
     "INTERFACES.md": "optional/INTERFACES.md.j2",
+    PR_TEMPLATE_DOC: "meta/PULL_REQUEST_TEMPLATE.md.j2",
 }
 
 
@@ -82,6 +83,7 @@ def ensure_docs(
     cfg: Specflow8Config,
     language: str,
     with_optional_docs: bool,
+    include_meta_docs: bool = False,
     force: bool = False,
 ) -> tuple[list[str], list[str]]:
     created: list[str] = []
@@ -90,6 +92,8 @@ def ensure_docs(
     lang = normalize_language(language)
     context = {"today": today(), "language": lang, "tr": make_translator(lang)}
     required_docs = list(cfg.docs_core)
+    if include_meta_docs:
+        required_docs.append(PR_TEMPLATE_DOC)
     if with_optional_docs or cfg.docs_optional_enabled:
         required_docs.extend(OPTIONAL_DOCS)
 
