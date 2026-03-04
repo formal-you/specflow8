@@ -9,30 +9,41 @@
   - Upstream: README.md
   - Downstream: PLAN.md, TASKS.md
 
-## Scope / 范围
-Business/domain semantics only, no implementation details. / 只记录业务语义，不记录技术实现。
+## Domain Scope / 领域范围
+This project's business domain is "engineering governance as a product capability."  
+本项目的业务领域是“把工程治理本身产品化”。
 
-## Domain Modeling Template (Strict) / 领域建模模板（强约束）
-- Feature: `F-XXX`
-- RelatedSpec: `S-XXX`
-- RelatedPlan: `P-XXX`
+## Actors / 参与者
+- Primary: maintainers operating specflow8 on active repositories.
+- Secondary: reviewers validating governance evidence before merge.
 
-### Actors and Scenarios / 参与者与场景
-- Primary Actor / Primary Actor:
-- Secondary Actors / Secondary Actors:
-- Key business scenarios / 关键业务场景:
-
-### Entities and Glossary / 领域对象与术语
+## Glossary / 术语
 | Term | Definition | Constraints |
 |---|---|---|
-| Term / 术语 | Definition / 定义 | Constraints / 约束 |
+| Spec-Driven Governance | Governance process managed by explicit spec/plan/task/ADR artifacts | Must be machine-checkable via analyzer |
+| Commit Trace | Conventional commit evidence with stage/feature/Refs fields | Missing or malformed trace is blocking in strict mode |
+| PR Gate | Required PR template fields and checklist compliance | Template integrity must pass `PR_TEMPLATE_*` checks |
 
-### Business Rules (Verifiable) / 业务规则（可验证）
+<!-- specflow8:feature:F-001:start -->
+## [F-001] Governance Core Domain Rules
+### Business Rules
 | RuleID | Description | Source | Related AC |
 |---|---|---|---|
-| BR-XXX | Rule description / 规则描述 | Policy/regulation/product agreement / 法规/产品策略/业务约定 | AC-XXX |
+| BR-001 | Every governance change must map to a feature ID (`F-XXX`) across docs | Team governance policy | AC-001 |
+| BR-002 | Trace references must point to existing targets (`F/T/ADR`) | Analyzer consistency rules | AC-002 |
+| BR-003 | Commit evidence must be parseable and structured | Commit governance policy | AC-003 |
+<!-- specflow8:feature:F-001:end -->
 
-### Boundaries and Non-Goals / 边界与非目标
-- In Scope / In Scope:
-- Out of Scope / Out of Scope:
-- Assumptions / 假设与前提:
+<!-- specflow8:feature:F-000:start -->
+## [F-000] PR and Root-Doc Hardening Rules
+### Business Rules
+| RuleID | Description | Source | Related AC |
+|---|---|---|---|
+| BR-004 | PR must include mandatory trace, AC coverage, risk, rollback fields | PR governance policy | AC-003 |
+| BR-005 | Root docs must represent current governance reality, not placeholders | Self-governance baseline | AC-003 |
+| BR-006 | Template source and generated runtime docs must remain consistent | Maintainability requirement | AC-003 |
+<!-- specflow8:feature:F-000:end -->
+
+## Non-Goals / 非目标
+- This document does not define implementation-level Python modules.
+- This document does not contain daily progress logs (see `STATE.md`).

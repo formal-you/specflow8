@@ -9,25 +9,43 @@
   - Upstream: TASKS.md, DECISIONS.md
   - Downstream: PLAN.md reprioritization / Downstream: PLAN.md 优先级调整
 
-## Snapshot / 快照
+## Program Snapshot / 项目快照
 - Date: 2026-03-05
-- Status: Initialized / Status: 已初始化
+- Governance Status: operational
+- Active Governance Spec: `S-001`
+- Open Blocking Findings: none observed after latest governance refresh
 
-## State Template (Strict) / 状态模板（强约束）
-- Feature: `F-XXX`
-- Stage: `specify|plan|tasks|decide|implement|review`
-- Owner:
-- UpdatedAt: 2026-03-05
+<!-- specflow8:feature:F-001:start -->
+## [F-001] Execution State
+### Snapshot / 快照
+- Stage: governance
+- Owner: Maintainers
+- Completed Tasks: `T-001`, `T-002`, `T-003`
+- Linked ADRs: `ADR-001`, `ADR-002`
 
-### Execution Status / 执行状态
-| Item | Value | Evidence |
-|---|---|---|
-| Completed tasks / 完成任务 | `T-XXX,...` | Commit/log/report links / 提交/日志/报告链接 |
-| Linked ADRs / 关联决策 | `ADR-XXX,...` | ADR entry links / ADR 条目链接 |
-| Risk status / 风险状态 | low/medium/high / low/medium/high | Risk assessment evidence / 风险评估依据 |
-| Rollback readiness / 回滚可用性 | ready/partial/not-ready / ready/partial/not-ready | Rollback drill/steps / 回滚演练/步骤 |
+### Evidence / 证据
+- Core governance engine and traceability: `11cb7e7`
+- Commit trace enforcement: `03c0b2b`
+<!-- specflow8:feature:F-001:end -->
 
-### Gate Results / 门禁结果
-- Analyze: `specflow8 analyze --mode strict --enforce-commit-trace`
-- Blocking findings / 阻塞项:
-- Next actions / 下一步动作:
+<!-- specflow8:feature:F-000:start -->
+## [F-000] Execution State
+### Snapshot / 快照
+- Stage: governance
+- Owner: Maintainers
+- Completed Tasks: `T-004`, `T-005`, `T-006`
+- Linked ADRs: `ADR-003`, `ADR-004`
+
+### Evidence / 证据
+- PR template checks introduced: `518468f`
+- Core templates hardened: `8fdde03`
+- PR template upgraded and synced: `0a9258e`
+- Root governance docs refreshed: `3ab43bd`
+<!-- specflow8:feature:F-000:end -->
+
+## Gate Results / 门禁结果
+- Analyze command baseline: `specflow8 analyze --mode strict --all --enforce-commit-trace`
+- Blocking findings: none currently tracked in docs baseline
+- Next actions:
+  - Keep strict mode in CI/pull request workflow.
+  - Add F-002 for next governance automation milestone.

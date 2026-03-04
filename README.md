@@ -3,44 +3,76 @@
 ## Document Meta / 文档元信息
 - Owner: Specflow8 Maintainers / Owner: Specflow8 维护者
 - Last Updated: 2026-03-05
-- Source of Truth: Project goals and navigation hub / Source of Truth: 项目目标与导航中心
+- Source of Truth: Project goals and governance navigation / Source of Truth: 项目目标与治理导航
 - Review Cadence: Per milestone / Review Cadence: 每个里程碑
 - Upstream/Downstream:
   - Upstream: AGENTS.md
-  - Downstream: All project docs / Downstream: 所有项目文档
+  - Downstream: ARCHITECTURE.md, DOMAIN.md, PLAN.md, TASKS.md, DECISIONS.md, STATE.md
 
 ## System Goal / 系统目标
-This repository follows a strong-governance workflow: every code change must be traceable, verifiable, and auditable. / 该仓库采用强约束治理流程：任何代码变更都必须具备可追踪、可验证、可审计证据。
+Specflow8 is managed by its own Spec-Driven Governance workflow.  
+Specflow8 以“自治理”方式运行：治理规则本身必须可追踪、可验证、可审计。
 
-## Governance Chain (Strict) / 治理链路（强约束）
+## Governance Chain (Enforced) / 治理链路（强制执行）
 `Spec -> Plan -> Task -> ADR -> Commit Trace -> PR Template`
 
-## Minimum Required Trace Fields / 最小必填追踪字段
-- Spec: `S-XXX` / Spec: `S-XXX`
-- Plan: `P-XXX` (if applicable) / Plan: `P-XXX`（如有）
-- Feature: `F-XXX`
-- Task: `T-XXX`
-- ADR: `ADR-XXX` (mandatory for architecture/interface/data/security changes) / （涉及架构/接口/数据/安全时必填）
-- AC: `AC-XXX`
+## Operating Mode / 当前运行模式
+- Rule engine supports `advisory | transition | strict`.
+- Merge gate policy: run `specflow8 analyze --mode strict --enforce-commit-trace`.
+- Default local config may remain `transition`, but PR acceptance uses strict output.
 
-## Quickstart / 快速开始
-1. Read AGENTS.md / 阅读 AGENTS.md
-2. Run `specflow8 check` / 执行 `specflow8 check`
-3. Run `specflow8 specify "<feature>"` / 执行 `specflow8 specify "<feature>"`
-4. Run `specflow8 plan "<tech and constraints>"` / 执行 `specflow8 plan "<tech and constraints>"`
-5. Run `specflow8 tasks` / 执行 `specflow8 tasks`
-6. Run strict analysis: `specflow8 analyze --mode strict --enforce-commit-trace --fail-on-warning` / 执行严格分析：`specflow8 analyze --mode strict --enforce-commit-trace --fail-on-warning`
-7. After each stage conversation, run a Conventional Commit with stage/feature/Refs fields / 每轮对话完成后执行 Conventional Commit（含 stage/feature/Refs 字段）
-8. Complete all required fields in `.github/PULL_REQUEST_TEMPLATE.md` before opening PR / 提交前填写 `.github/PULL_REQUEST_TEMPLATE.md` 全部必填字段
+## Feature Registry / 特性治理台账
+| Feature | Spec | Plan | Status | Primary Evidence |
+|---|---|---|---|---|
+| F-001 | S-001 | P-001 | done | `11cb7e7`, `03c0b2b` |
+| F-000 | S-001 | P-002 | done | `518468f`, `8fdde03`, `0a9258e`, `3ab43bd` |
 
-## PR Merge Gates / PR 合入门槛
-- [ ] Trace chain complete: Spec/Plan/Feature/Task/ADR/Commit/PR fully linked / 链路完整：Spec/Plan/Feature/Task/ADR/Commit/PR 全部可追踪
-- [ ] AC coverage complete: every AC has evidence (tests/screenshots/logs) / AC 覆盖完整：逐条标注证据（测试/截图/日志）
-- [ ] Risk and rollback plan is executable / 风险与回滚方案可执行
-- [ ] `specflow8 analyze` has no blocking findings / `specflow8 analyze` 无阻塞项
+## Merge Gates / 合入门禁
+- [ ] Spec/Plan/Task/ADR/Commit/PR trace chain complete.
+- [ ] Every AC has reproducible evidence.
+- [ ] Risk and rollback plan is concrete and executable.
+- [ ] `specflow8 analyze` has no blocking findings in strict mode.
 
-## Subagent Workflow / 子代理工作流
-- Todo export: `specflow8 todo --feature F-001` / 待办导出: `specflow8 todo --feature F-001`
-- Handoff doc: `specflow8 handoff --stage tasks --feature F-001 --shell powershell` / 交接文档: `specflow8 handoff --stage tasks --feature F-001 --shell powershell`
-- Stage final commit: `specflow8 commit --type docs --scope tasks --subject "tasks [F-001] 本轮对话完成内容" --body "stage: tasks; feature: F-001" --footer "Refs: F-001"` / 收尾提交: `specflow8 commit --type docs --scope tasks --subject "tasks [F-001] 本轮对话完成内容" --body "stage: tasks; feature: F-001" --footer "Refs: F-001"`
-- Script entrypoints: `scripts/specflow8/*` (scaffolded by init) / 脚本入口: `scripts/specflow8/*`（由 init 自动生成）
+## Governance Command Set / 治理命令集
+1. `specflow8 check`
+2. `specflow8 specify "<feature>"`
+3. `specflow8 plan --feature F-XXX "<tech and constraints>"`
+4. `specflow8 tasks --feature F-XXX`
+5. `specflow8 decide --feature F-XXX ...`
+6. `specflow8 state --feature F-XXX --snapshot "..."`
+7. `specflow8 analyze --mode strict --all --enforce-commit-trace`
+8. `specflow8 commit --type <type> --scope <scope> --subject "<subject>" --body "stage: <stage>; feature: F-XXX" --footer "Refs: F-XXX"`
+
+## Governance Evidence Timeline / 治理证据时间线
+| Date | Commit | Event |
+|---|---|---|
+| 2026-03-05 | `11cb7e7` | Introduced YAML-driven governance engine and traceability checks. |
+| 2026-03-05 | `03c0b2b` | Adopted Conventional Commit trace format for stage governance. |
+| 2026-03-05 | `518468f` | Added PR template governance checks (`PR_TEMPLATE_*`). |
+| 2026-03-05 | `8fdde03` | Strengthened core template governance constraints. |
+| 2026-03-05 | `0a9258e` | Upgraded PR template to strong-governance structure. |
+| 2026-03-05 | `3ab43bd` | Refreshed root docs for project self-governance. |
+
+<!-- specflow8:feature:F-001:start -->
+## [F-001] YAML Governance Engine and Commit Trace
+### Summary / 概述
+- Goal: establish rule-driven governance with cross-document traceability.
+- Delivered: rule schema/engine, consistency and quality rules, commit trace checks.
+
+### Acceptance Criteria / 验收标准
+- AC-001: governance checks are YAML-driven and executable (`11cb7e7`).
+- AC-002: trace links validate `F/T/ADR` integrity (`11cb7e7`).
+- AC-003: commit evidence follows Conventional Commit + stage/feature/Refs (`03c0b2b`).
+<!-- specflow8:feature:F-001:end -->
+
+<!-- specflow8:feature:F-000:start -->
+## [F-000] Governance Hardening for Project Self-Management
+### Summary / 概述
+- Goal: move from partial chain to full PR-enforced governance loop.
+- Delivered: PR template checks, stronger templates, root docs synchronized.
+
+### Acceptance Criteria / 验收标准
+- AC-001: PR template exists and is governed by analyzer (`518468f`).
+- AC-002: core templates enforce stricter governance structure (`8fdde03`).
+- AC-003: repository root docs switched from placeholders to governance baseline (`3ab43bd` and current update).
+<!-- specflow8:feature:F-000:end -->

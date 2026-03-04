@@ -6,21 +6,37 @@
 - Source of Truth: Executable task queue / Source of Truth: 可执行任务队列
 - Review Cadence: Weekly / Review Cadence: 每周
 - Upstream/Downstream:
-  - Upstream: PLAN.md, STATE.md
+  - Upstream: PLAN.md, DECISIONS.md
   - Downstream: STATE.md
 
 ## Task Governance Constraints / 任务治理约束
-- Each task must include: `ID`, `Feature`, `RelatedPlan`, `Evidence`, and `DoD`. / 每条任务必须包含：`ID`、`Feature`、`RelatedPlan`、`Evidence`、`DoD`。
-- If `RelatedADR` is empty, `WaiverReason` is mandatory. / `RelatedADR` 为空时必须填写 `WaiverReason`。
-- `DependsOn` only allows `T-XXX` or `None`, and must not form cycles. / `DependsOn` 仅允许 `T-XXX` 或 `None`，不得形成环。
-- Status flow allowed only: `todo -> in_progress -> done` (or `blocked`). / 状态流转仅允许：`todo -> in_progress -> done`（或 `blocked`）。
+- Required columns are enforced by parser and rule checks.
+- `RelatedADR` must be linked, otherwise `WaiverReason` must explain.
+- `DependsOn` must not create dependency cycles.
 
-## Task Template (Required Fields) / 任务模板（必填字段）
+<!-- specflow8:feature:F-001:start -->
+## [F-001] Governance Engine Foundation Tasks
+### Task Queue / 任务队列
 | ID | Feature | Title | Priority | Status | Owner | Due | DependsOn | RelatedPlan | RelatedADR | Evidence | DoD | WaiverReason |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| T-XXX | F-XXX | Short task title / 简短任务标题 | P0/P1/P2 | todo/in_progress/done/blocked | Name/Role / 姓名/角色 | YYYY-MM-DD | Task IDs or None / 任务 ID 或 None | F-XXX | ADR-XXX/None / None | Verifiable evidence / 可验证证据 | Verifiable completion statement / 可验证的完成标准 | Waiver reason or None / 原因或 None |
+| T-001 | F-001 | Build YAML rule schema and runtime rule loader | P0 | done | Maintainers | 2026-03-05 | None | F-001 | ADR-001 | commit:11cb7e7 | `load_rules` validates schema and loads all configured rule files | None |
+| T-002 | F-001 | Implement traceability and quality gate checks | P0 | done | Maintainers | 2026-03-05 | T-001 | F-001 | ADR-001 | commit:11cb7e7 | Analyzer reports TRACE/QUALITY findings with stage-aware severity | None |
+| T-003 | F-001 | Enforce conventional commit trace validation | P1 | done | Maintainers | 2026-03-05 | T-002 | F-001 | ADR-002 | commit:03c0b2b | Commit message format includes header + stage/feature/Refs fields | None |
+<!-- specflow8:feature:F-001:end -->
 
-## AC Mapping Template / AC 映射模板
+<!-- specflow8:feature:F-000:start -->
+## [F-000] PR Gate and Root Governance Hardening Tasks
+### Task Queue / 任务队列
+| ID | Feature | Title | Priority | Status | Owner | Due | DependsOn | RelatedPlan | RelatedADR | Evidence | DoD | WaiverReason |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| T-004 | F-000 | Add PR template presence and field checks in analyzer | P0 | done | Maintainers | 2026-03-05 | None | F-000 | ADR-003 | commit:518468f | `PR_TEMPLATE_MISSING` and `PR_TEMPLATE_FIELD_MISSING` fire in strict mode | None |
+| T-005 | F-000 | Upgrade PR template and keep source/runtime template aligned | P1 | done | Maintainers | 2026-03-05 | T-004 | F-000 | ADR-003 | commit:0a9258e | `.github` and template source contain the same governance-required fields | None |
+| T-006 | F-000 | Replace root placeholder docs with project self-governance records | P1 | done | Maintainers | 2026-03-05 | T-005 | F-000 | ADR-004 | commit:3ab43bd | Root docs are actionable governance docs for operating specflow8 on itself | None |
+<!-- specflow8:feature:F-000:end -->
+
+## AC Mapping / AC 映射
 | AC-ID | RelatedTasks | Evidence |
 |---|---|---|
-| AC-001 | T-XXX,T-YYY | Test report/log/screenshot link / 测试报告/日志/截图链接 |
+| AC-001 | T-001,T-002 | commit:11cb7e7 |
+| AC-002 | T-003 | commit:03c0b2b |
+| AC-003 | T-004,T-005,T-006 | commit:518468f, commit:0a9258e, commit:3ab43bd |

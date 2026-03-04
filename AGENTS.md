@@ -9,30 +9,43 @@
   - Upstream: Team collaboration policy / Upstream: 团队协作策略
   - Downstream: README.md, ARCHITECTURE.md, DOMAIN.md, STATE.md, PLAN.md, TASKS.md, DECISIONS.md, .github/PULL_REQUEST_TEMPLATE.md
 
-## Agent Constitution / Agent 宪法
-- Keep document boundaries explicit; no cross-document responsibility drift. / 保持文档边界清晰，禁止跨文档职责漂移。
-- Keep cross-document traceability intact; every change must be traceable from Spec to PR. / 保持跨文档可追踪性，任何变更必须可从 Spec 追溯到 PR。
-- Changes to architecture, tasks, and decisions must be bi-directionally linked (Feature/Task/ADR). / 架构、任务、决策变更必须双向链接（Feature/Task/ADR）。
-- After each stage dialogue, execute a Conventional Commits style commit (`specflow8 commit`, e.g. feat/fix/docs/chore). / 每轮对话完成后必须执行 Conventional Commits 风格提交（`specflow8 commit`，如 feat/fix/docs/chore）。
-- Never mark work done without evidence; Evidence/Verification fields must not be empty. / 严禁在无证据情况下标记完成；Evidence/Verification 字段不可留空。
+## Active Constitution / 当前生效宪法
+- Document boundary is enforced by rule engine (`BOUNDARY_RULE_VIOLATION`). / 文档边界由规则引擎强制约束（`BOUNDARY_RULE_VIOLATION`）。
+- Cross-document trace is mandatory (`F/T/ADR` linkage). / 跨文档追踪强制要求（`F/T/ADR` 链接）。
+- Governance checks run before merge in strict mode. / 合并前治理检查以 strict 模式执行。
+- Stage-level commit trace is mandatory for each governance step. / 每个治理阶段必须留下提交痕迹。
+- Evidence-first: no done status without reproducible evidence. / 证据优先：无可复现证据不得标记完成。
 
-## Governance Gates / 治理门禁
-| Gate | Trigger | Required Evidence | Blocking Rule |
-|---|---|---|---|
-| Traceability / Traceability | Any feature change / 任意 feature 变更 | `F-XXX` + `RelatedPlan` + `RelatedADR/waiver` | TRACE_LINK_MISSING / TRACE_TARGET_NOT_FOUND |
-| Quality / Quality | `tasks/decide/implement` | Evidence + Verification + checklist output | TASK_NO_ADR_OR_WAIVER / CLARIFICATION_LIMIT_EXCEEDED |
-| Commit Trace / Commit Trace | Before commit / 提交前 | Conventional Commit + `stage/feature/Refs` | COMMIT_TRACE_MISSING / COMMIT_TEMPLATE_INVALID |
-| PR Gate / PR Gate | Before opening PR / 发起 PR 前 | `.github/PULL_REQUEST_TEMPLATE.md` 完整字段 | PR_TEMPLATE_MISSING / PR_TEMPLATE_FIELD_MISSING |
+## Real Governance Baseline / 真实治理基线
+- Primary governance spec: `S-001` (Spec-Driven Governance for Specflow8 self-management).
+- Implemented plans:
+  - `P-001` for `F-001`: YAML governance engine and commit trace.
+  - `P-002` for `F-000`: PR-template gate and strict doc governance hardening.
+- Rule-backed gates in production use:
+  - `TRACE_LINK_MISSING`, `TRACE_TARGET_NOT_FOUND`
+  - `TASK_NO_ADR_OR_WAIVER`, `TASK_DEP_CYCLE`
+  - `COMMIT_TRACE_MISSING`, `COMMIT_TEMPLATE_INVALID`
+  - `PR_TEMPLATE_MISSING`, `PR_TEMPLATE_FIELD_MISSING`
 
-## Document Index / 文档索引
-- README.md
-- ARCHITECTURE.md
-- DOMAIN.md
-- STATE.md
-- PLAN.md
-- TASKS.md
-- DECISIONS.md
-- .github/PULL_REQUEST_TEMPLATE.md
+## Governance Evidence (Git) / 治理证据（Git）
+| Date | Commit | Governance Event |
+|---|---|---|
+| 2026-03-05 | `11cb7e7` | YAML-driven governance engine and traceability foundation (`F-001`). |
+| 2026-03-05 | `03c0b2b` | Conventional commit standard adopted with stage/feature/Refs fields (`F-001`). |
+| 2026-03-05 | `518468f` | PR template traceability checks added (`F-000`). |
+| 2026-03-05 | `8fdde03` | Core templates strengthened for strict governance (`F-000`). |
+| 2026-03-05 | `0a9258e` | PR template upgraded to strong governance format (`F-000`). |
+| 2026-03-05 | `3ab43bd` | Root docs refreshed for project self-governance (`F-000`). |
+
+## Document Boundaries / 文档边界
+- `README.md`: governance chain, process entry, merge gates.
+- `ARCHITECTURE.md`: architecture and technical decision context only.
+- `DOMAIN.md`: business semantics/rules only, no implementation detail.
+- `PLAN.md`: phased intent and milestones only.
+- `TASKS.md`: executable backlog with evidence and DoD.
+- `DECISIONS.md`: ADR records with verification and lineage.
+- `STATE.md`: current snapshot and gate outcomes.
+- `.github/PULL_REQUEST_TEMPLATE.md`: PR-level enforcement checklist.
 
 ## ID Conventions / ID 规范
 - Spec: `S-XXX`
@@ -46,7 +59,7 @@
 ```text
 <type>(<scope>): <subject>
 
-stage: <specify|plan|tasks|decide|implement|review>
+stage: <specify|plan|tasks|decide|implement|review|governance|constitution>
 feature: F-XXX
 
 Refs: F-XXX[, T-XXX, ADR-XXX]
