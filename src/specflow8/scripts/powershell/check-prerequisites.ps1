@@ -69,7 +69,7 @@ if (($IncludeTasks -or $RequireTasks) -and $effectiveFeatureId) {
         $pattern = "(?s)<!-- specflow8:feature:" + $escaped + ":start -->\r?\n(.*?)\r?\n<!-- specflow8:feature:" + $escaped + ":end -->"
         $block = [regex]::Match($tasksText, $pattern)
         if ($block.Success) {
-            $statusMatches = [regex]::Matches($block.Groups[1].Value, "^\|\s*T-\d{3}\s*\|\s*.*?\|\s*P[0-2]\s*\|\s*(todo|in_progress|done|blocked)\s*\|\s*.*?\|", [System.Text.RegularExpressions.RegexOptions]::Multiline)
+            $statusMatches = [regex]::Matches($block.Groups[1].Value, "^\|\s*T-\d{3}\s*\|\s*(?:.*?\|\s*){1,2}P[0-2]\s*\|\s*(todo|in_progress|done|blocked)\s*\|\s*.*?\|", [System.Text.RegularExpressions.RegexOptions]::Multiline)
             $taskTotal = $statusMatches.Count
             foreach ($match in $statusMatches) {
                 if ($match.Groups[1].Value -eq "done") {

@@ -17,6 +17,6 @@ scripts:
 1. Run prerequisite script and parse JSON context.
 2. Load feature requirements and plan sections.
 3. Generate tasks with fields:
-   `ID/Title/Priority/Status/Owner/Due/DependsOn/DoD`
+   `ID/Feature/Title/Priority/Status/Owner/Due/DependsOn/RelatedPlan/RelatedADR/Evidence/DoD/WaiverReason`
 4. Ensure no dependency cycles.
 5. After updating files, run `specflow8 commit --type gitflow --scope tasks --subject "tasks [<FEATURE_ID>] 本轮对话完成内容" --body "stage: tasks; feature: <FEATURE_ID>" --footer "Refs: <FEATURE_ID>"`.

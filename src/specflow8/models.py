@@ -8,6 +8,7 @@ FeatureStatus = Literal["draft", "planned", "in_progress", "blocked", "done"]
 TaskPriority = Literal["P0", "P1", "P2"]
 TaskStatus = Literal["todo", "in_progress", "done", "blocked"]
 Severity = Literal["info", "warn", "error"]
+GovernanceMode = Literal["advisory", "transition", "strict"]
 
 
 @dataclass(slots=True)
@@ -29,7 +30,11 @@ class TaskRecord:
     owner: str
     due: date | None
     depends_on: list[str]
+    related_plan: str
+    related_adr: str
+    evidence: str
     dod: str
+    waiver_reason: str = ""
 
 
 @dataclass(slots=True)
@@ -41,6 +46,10 @@ class DecisionRecord:
     decision: str
     alternatives: str
     consequences: str
+    related_tasks: str
+    status: str
+    supersedes: str
+    verification: str
 
 
 @dataclass(slots=True)
@@ -51,3 +60,5 @@ class QualityFinding:
     feature_id: str | None
     message: str
     suggestion: str
+    stage: str = "general"
+    rule_id: str | None = None

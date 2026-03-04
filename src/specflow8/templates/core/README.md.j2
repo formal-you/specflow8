@@ -18,7 +18,8 @@
 3. {{ tr("执行 `specflow8 specify \"<feature>\"`", "Run `specflow8 specify \"<feature>\"`") }}
 4. {{ tr("执行 `specflow8 plan \"<tech and constraints>\"`", "Run `specflow8 plan \"<tech and constraints>\"`") }}
 5. {{ tr("执行 `specflow8 tasks`", "Run `specflow8 tasks`") }}
-6. {{ tr("每轮对话完成后执行 `specflow8 commit --type gitflow --scope <stage> --subject \"<stage> [F-001] 本轮对话完成内容\" --body \"stage: <stage>; feature: F-001\" --footer \"Refs: F-001\"`", "After each stage conversation, run `specflow8 commit --type gitflow --scope <stage> --subject \"<stage> [F-001] 本轮对话完成内容\" --body \"stage: <stage>; feature: F-001\" --footer \"Refs: F-001\"`") }}
+6. {{ tr("执行 `specflow8 analyze --mode transition --enforce-commit-trace`", "Run `specflow8 analyze --mode transition --enforce-commit-trace`") }}
+7. {{ tr("每轮对话完成后执行 `specflow8 commit --type gitflow --scope <stage> --subject \"<stage> [F-001] 本轮对话完成内容\" --body \"stage: <stage>; feature: F-001\" --footer \"Refs: F-001\"`", "After each stage conversation, run `specflow8 commit --type gitflow --scope <stage> --subject \"<stage> [F-001] 本轮对话完成内容\" --body \"stage: <stage>; feature: F-001\" --footer \"Refs: F-001\"`") }}
 
 ## {{ tr("子代理工作流", "Subagent Workflow") }}
 - {{ tr("待办导出: `specflow8 todo --feature F-001`", "Todo export: `specflow8 todo --feature F-001`") }}

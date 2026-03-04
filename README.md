@@ -84,9 +84,10 @@ specflow8 todo --feature F-001 --stdout
 # 9) create subagent handoff package
 specflow8 handoff --stage tasks --feature F-001 --shell powershell --stdout
 
-# 10) run consistency/quality analysis
-specflow8 analyze --feature F-001
-specflow8 analyze --all
+# 10) run governance analysis
+specflow8 analyze --feature F-001 --mode transition
+specflow8 analyze --all --mode advisory
+specflow8 analyze --feature F-001 --mode strict --json --enforce-commit-trace
 
 # 11) generate checklist file
 specflow8 checklist --type readiness --feature F-001
@@ -102,6 +103,17 @@ specflow8 commit --type feat --scope cli --subject "document command usage" --bo
 
 # 14) environment sanity check
 specflow8 check
+```
+
+## Governance Defaults
+
+`specflow8.yaml` now supports governance defaults:
+
+```yaml
+governance_mode: transition
+analyze:
+  enforce_commit_trace: true
+  git_log_depth: 100
 ```
 
 ## Agent Kit (spec-kit style)
