@@ -1,0 +1,13 @@
+rules:
+  - id: BND-001
+    doc: AGENTS.md
+    rule: "Define governance only; do not store runtime state."
+  - id: BND-002
+    doc: README.md
+    rule: "Define goals/navigation only; avoid decision details."
+  - id: BND-003
+    doc: ARCHITECTURE.md
+    rule: "Define technical structure; avoid day-to-day status logs."
+  - id: BND-004
+    doc: TASKS.md
+    rule: "Store executable tasks; keep rationale in DECISIONS.md."

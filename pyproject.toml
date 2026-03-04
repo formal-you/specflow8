@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "specflow8"
+version = "0.1.0"
+description = "Spec-driven workflow toolkit for 8-document SWE memory systems."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Specflow8 Maintainers" }]
+dependencies = [
+  "typer>=0.12.5",
+  "PyYAML>=6.0.1",
+  "Jinja2>=3.1.4",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.2.0"]
+
+[project.scripts]
+specflow8 = "specflow8.cli:app"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+specflow8 = [
+  "templates/**/*.j2",
+  "templates/commands/*.md",
+  "rules/*.yaml",
+  "scripts/bash/*.sh",
+  "scripts/powershell/*.ps1",
+]

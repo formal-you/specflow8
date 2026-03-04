@@ -1,0 +1,15 @@
+# TASKS.md
+
+## {{ tr("文档元信息", "Document Meta") }}
+- {{ tr("Owner: 工程团队", "Owner: Engineering") }}
+- Last Updated: {{ today }}
+- {{ tr("Source of Truth: 可执行任务队列", "Source of Truth: Executable task queue") }}
+- {{ tr("Review Cadence: 每周", "Review Cadence: Weekly") }}
+- Upstream/Downstream:
+  - Upstream: PLAN.md, STATE.md
+  - Downstream: STATE.md
+
+## {{ tr("任务模板（必填字段）", "Task Template (Required Fields)") }}
+| ID | Title | Priority | Status | Owner | Due | DependsOn | DoD |
+|---|---|---|---|---|---|---|---|
+| T-XXX | {{ tr("简短任务标题", "Short task title") }} | P0/P1/P2 | todo/in_progress/done/blocked | {{ tr("姓名/角色", "Name/Role") }} | YYYY-MM-DD | {{ tr("任务 ID 或 None", "Task IDs or None") }} | {{ tr("可验证的完成标准", "Verifiable completion statement") }} |

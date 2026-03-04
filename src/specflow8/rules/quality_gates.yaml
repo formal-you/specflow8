@@ -1,0 +1,9 @@
+gates:
+  - id: QGT-REQ
+    description: "Requirements are clear and testable."
+  - id: QGT-PLAN
+    description: "Architecture and plan are aligned."
+  - id: QGT-TASK
+    description: "Tasks have IDs, ownership, dependencies, and DoD."
+  - id: QGT-DEC
+    description: "Decisions include alternatives and consequences."

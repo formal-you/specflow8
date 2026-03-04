@@ -1,0 +1,9 @@
+rules:
+  - id: CST-001
+    check: "Feature markers are balanced in all docs."
+  - id: CST-002
+    check: "Each feature has task entries or explicit reason."
+  - id: CST-003
+    check: "Each major feature has at least one decision entry."
+  - id: CST-004
+    check: "Clarification markers do not exceed configured limit."

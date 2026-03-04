@@ -1,0 +1,34 @@
+# AGENTS.md
+
+## {{ tr("文档元信息", "Document Meta") }}
+- {{ tr("Owner: Specflow8 维护者", "Owner: Specflow8 Maintainers") }}
+- Last Updated: {{ today }}
+- {{ tr("Source of Truth: Agent 宪法与文档治理", "Source of Truth: Agent constitution and document governance") }}
+- {{ tr("Review Cadence: 每个里程碑", "Review Cadence: Per milestone") }}
+- Upstream/Downstream:
+  - {{ tr("Upstream: 团队协作策略", "Upstream: Team collaboration policy") }}
+  - Downstream: README.md, ARCHITECTURE.md, DOMAIN.md, STATE.md, PLAN.md, TASKS.md, DECISIONS.md
+
+## {{ tr("Agent 宪法", "Agent Constitution") }}
+- {{ tr("保持文档边界清晰。", "Keep document boundaries explicit.") }}
+- {{ tr("保持跨文档可追踪性。", "Keep cross-document traceability intact.") }}
+- {{ tr("架构、任务、决策变更必须可关联。", "Changes to architecture, tasks, and decisions must be linked.") }}
+- {{ tr("每轮对话完成后必须执行 git flow 风格提交（`specflow8 commit`）。", "After each stage dialogue, execute a git flow style commit (`specflow8 commit`).") }}
+
+## {{ tr("文档索引", "Document Index") }}
+- README.md
+- ARCHITECTURE.md
+- DOMAIN.md
+- STATE.md
+- PLAN.md
+- TASKS.md
+- DECISIONS.md
+
+## {{ tr("提交信息模板", "Commit Message Template") }}
+```text
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
