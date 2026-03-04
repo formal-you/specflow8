@@ -10,7 +10,18 @@
   - {{ tr("Downstream: 所有项目文档", "Downstream: All project docs") }}
 
 ## {{ tr("系统目标", "System Goal") }}
-{{ tr("该仓库采用 8 文档驱动流程。", "This repository follows an 8-document spec-driven workflow.") }}
+{{ tr("该仓库采用强约束治理流程：任何代码变更都必须具备可追踪、可验证、可审计证据。", "This repository follows a strong-governance workflow: every code change must be traceable, verifiable, and auditable.") }}
+
+## {{ tr("治理链路（强约束）", "Governance Chain (Strict)") }}
+`Spec -> Plan -> Task -> ADR -> Commit Trace -> PR Template`
+
+## {{ tr("最小必填追踪字段", "Minimum Required Trace Fields") }}
+- {{ tr("Spec: `S-XXX`", "Spec: `S-XXX`") }}
+- {{ tr("Plan: `P-XXX`（如有）", "Plan: `P-XXX` (if applicable)") }}
+- Feature: `F-XXX`
+- Task: `T-XXX`
+- ADR: `ADR-XXX` {{ tr("（涉及架构/接口/数据/安全时必填）", "(mandatory for architecture/interface/data/security changes)") }}
+- AC: `AC-XXX`
 
 ## {{ tr("快速开始", "Quickstart") }}
 1. {{ tr("阅读 AGENTS.md", "Read AGENTS.md") }}
@@ -18,8 +29,15 @@
 3. {{ tr("执行 `specflow8 specify \"<feature>\"`", "Run `specflow8 specify \"<feature>\"`") }}
 4. {{ tr("执行 `specflow8 plan \"<tech and constraints>\"`", "Run `specflow8 plan \"<tech and constraints>\"`") }}
 5. {{ tr("执行 `specflow8 tasks`", "Run `specflow8 tasks`") }}
-6. {{ tr("执行 `specflow8 analyze --mode transition --enforce-commit-trace`", "Run `specflow8 analyze --mode transition --enforce-commit-trace`") }}
-7. {{ tr("每轮对话完成后执行 Conventional Commit，例如：`specflow8 commit --type docs --scope <stage> --subject \"<stage> [F-001] 本轮对话完成内容\" --body \"stage: <stage>; feature: F-001\" --footer \"Refs: F-001\"`", "After each stage conversation, run a Conventional Commit, for example: `specflow8 commit --type docs --scope <stage> --subject \"<stage> [F-001] 本轮对话完成内容\" --body \"stage: <stage>; feature: F-001\" --footer \"Refs: F-001\"`") }}
+6. {{ tr("执行严格分析：`specflow8 analyze --mode strict --enforce-commit-trace --fail-on-warning`", "Run strict analysis: `specflow8 analyze --mode strict --enforce-commit-trace --fail-on-warning`") }}
+7. {{ tr("每轮对话完成后执行 Conventional Commit（含 stage/feature/Refs 字段）", "After each stage conversation, run a Conventional Commit with stage/feature/Refs fields") }}
+8. {{ tr("提交前填写 `.github/PULL_REQUEST_TEMPLATE.md` 全部必填字段", "Complete all required fields in `.github/PULL_REQUEST_TEMPLATE.md` before opening PR") }}
+
+## {{ tr("PR 合入门槛", "PR Merge Gates") }}
+- [ ] {{ tr("链路完整：Spec/Plan/Feature/Task/ADR/Commit/PR 全部可追踪", "Trace chain complete: Spec/Plan/Feature/Task/ADR/Commit/PR fully linked") }}
+- [ ] {{ tr("AC 覆盖完整：逐条标注证据（测试/截图/日志）", "AC coverage complete: every AC has evidence (tests/screenshots/logs)") }}
+- [ ] {{ tr("风险与回滚方案可执行", "Risk and rollback plan is executable") }}
+- [ ] {{ tr("`specflow8 analyze` 无阻塞项", "`specflow8 analyze` has no blocking findings") }}
 
 ## {{ tr("子代理工作流", "Subagent Workflow") }}
 - {{ tr("待办导出: `specflow8 todo --feature F-001`", "Todo export: `specflow8 todo --feature F-001`") }}

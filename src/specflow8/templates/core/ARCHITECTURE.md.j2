@@ -11,3 +11,29 @@
 
 ## {{ tr("范围", "Scope") }}
 {{ tr("仅记录架构决策，不记录日常状态。", "Architecture decisions only. No daily execution state.") }}
+
+## {{ tr("架构记录模板（强约束）", "Architecture Record Template (Strict)") }}
+- Feature: `F-XXX`
+- RelatedSpec: `S-XXX`
+- RelatedPlan: `P-XXX`
+- RelatedADR: `ADR-XXX`/{{ tr("待定", "pending") }}
+
+### {{ tr("上下文与目标", "Context and Goals") }}
+- {{ tr("业务目标", "Business objective") }}:
+- {{ tr("技术约束", "Technical constraints") }}:
+- {{ tr("非功能目标（性能/可靠性/安全/成本）", "Non-functional targets (performance/reliability/security/cost)") }}:
+
+### {{ tr("架构决策", "Architecture Decisions") }}
+- {{ tr("核心组件与边界", "Core components and boundaries") }}:
+- {{ tr("数据流与依赖方向", "Data flow and dependency direction") }}:
+- {{ tr("接口契约摘要", "Interface contract summary") }}:
+
+### {{ tr("风险与回滚", "Risk and Rollback") }}
+- {{ tr("风险点", "Risks") }}:
+- {{ tr("缓解措施", "Mitigations") }}:
+- {{ tr("回滚方案", "Rollback strategy") }}:
+
+### {{ tr("验证与观测", "Verification and Observability") }}
+- Verification:
+- Metrics/Alerts:
+- {{ tr("证据链接（测试、日志、仪表盘）", "Evidence links (tests, logs, dashboards)") }}:

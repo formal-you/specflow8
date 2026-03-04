@@ -9,7 +9,18 @@
   - Upstream: PLAN.md, ARCHITECTURE.md
   - Downstream: TASKS.md, STATE.md
 
+## {{ tr("ADR 触发条件", "ADR Triggers") }}
+- {{ tr("接口契约变更（API/Schema）", "Interface contract changes (API/Schema)") }}
+- {{ tr("数据模型或迁移策略调整", "Data model or migration strategy changes") }}
+- {{ tr("安全、鉴权、合规策略调整", "Security/auth/compliance policy changes") }}
+- {{ tr("影响关键非功能指标（性能/可用性/成本）", "Changes impacting key non-functionals (performance/availability/cost)") }}
+
 ## {{ tr("ADR 模板（必填字段）", "ADR Template (Required Fields)") }}
 | ADR-ID | Feature | Date | Context | Decision | Alternatives | Consequences | RelatedTasks | Status | Supersedes | Verification |
 |---|---|---|---|---|---|---|---|---|---|---|
 | ADR-XXX | F-XXX | YYYY-MM-DD | {{ tr("问题背景", "Problem statement") }} | {{ tr("选择方案", "Chosen option") }} | {{ tr("被拒绝方案", "Rejected options") }} | {{ tr("影响与后续", "Impact and follow-ups") }} | T-XXX | proposed/accepted/superseded/rejected | ADR-XXX/{{ tr("None", "None") }} | {{ tr("验证方式", "Verification method") }} |
+
+## {{ tr("审计要求", "Audit Requirements") }}
+- {{ tr("每条 ADR 必须至少链接 1 个任务（`RelatedTasks`）。", "Every ADR must link to at least one task (`RelatedTasks`).") }}
+- {{ tr("`Verification` 必须可复现（命令、日志、评审记录）。", "`Verification` must be reproducible (commands, logs, review records).") }}
+- {{ tr("被替代 ADR 必须在 `Supersedes` 中声明来源。", "Superseded ADRs must declare lineage in `Supersedes`.") }}

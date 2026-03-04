@@ -10,10 +10,19 @@
   - Downstream: README.md, ARCHITECTURE.md, DOMAIN.md, STATE.md, PLAN.md, TASKS.md, DECISIONS.md, .github/PULL_REQUEST_TEMPLATE.md
 
 ## {{ tr("Agent 宪法", "Agent Constitution") }}
-- {{ tr("保持文档边界清晰。", "Keep document boundaries explicit.") }}
-- {{ tr("保持跨文档可追踪性。", "Keep cross-document traceability intact.") }}
-- {{ tr("架构、任务、决策变更必须可关联。", "Changes to architecture, tasks, and decisions must be linked.") }}
+- {{ tr("保持文档边界清晰，禁止跨文档职责漂移。", "Keep document boundaries explicit; no cross-document responsibility drift.") }}
+- {{ tr("保持跨文档可追踪性，任何变更必须可从 Spec 追溯到 PR。", "Keep cross-document traceability intact; every change must be traceable from Spec to PR.") }}
+- {{ tr("架构、任务、决策变更必须双向链接（Feature/Task/ADR）。", "Changes to architecture, tasks, and decisions must be bi-directionally linked (Feature/Task/ADR).") }}
 - {{ tr("每轮对话完成后必须执行 Conventional Commits 风格提交（`specflow8 commit`，如 feat/fix/docs/chore）。", "After each stage dialogue, execute a Conventional Commits style commit (`specflow8 commit`, e.g. feat/fix/docs/chore).") }}
+- {{ tr("严禁在无证据情况下标记完成；Evidence/Verification 字段不可留空。", "Never mark work done without evidence; Evidence/Verification fields must not be empty.") }}
+
+## {{ tr("治理门禁", "Governance Gates") }}
+| Gate | Trigger | Required Evidence | Blocking Rule |
+|---|---|---|---|
+| {{ tr("Traceability", "Traceability") }} | {{ tr("任意 feature 变更", "Any feature change") }} | `F-XXX` + `RelatedPlan` + `RelatedADR/waiver` | TRACE_LINK_MISSING / TRACE_TARGET_NOT_FOUND |
+| {{ tr("Quality", "Quality") }} | `tasks/decide/implement` | Evidence + Verification + checklist output | TASK_NO_ADR_OR_WAIVER / CLARIFICATION_LIMIT_EXCEEDED |
+| {{ tr("Commit Trace", "Commit Trace") }} | {{ tr("提交前", "Before commit") }} | Conventional Commit + `stage/feature/Refs` | COMMIT_TRACE_MISSING / COMMIT_TEMPLATE_INVALID |
+| {{ tr("PR Gate", "PR Gate") }} | {{ tr("发起 PR 前", "Before opening PR") }} | `.github/PULL_REQUEST_TEMPLATE.md` 完整字段 | PR_TEMPLATE_MISSING / PR_TEMPLATE_FIELD_MISSING |
 
 ## {{ tr("文档索引", "Document Index") }}
 - README.md
@@ -25,11 +34,20 @@
 - DECISIONS.md
 - .github/PULL_REQUEST_TEMPLATE.md
 
+## {{ tr("ID 规范", "ID Conventions") }}
+- Spec: `S-XXX`
+- Plan: `P-XXX`
+- Feature: `F-XXX`
+- Task: `T-XXX`
+- ADR: `ADR-XXX`
+- AC: `AC-XXX`
+
 ## {{ tr("提交信息模板", "Commit Message Template") }}
 ```text
 <type>(<scope>): <subject>
 
-<body>
+stage: <specify|plan|tasks|decide|implement|review>
+feature: F-XXX
 
-<footer>
+Refs: F-XXX[, T-XXX, ADR-XXX]
 ```
