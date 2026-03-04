@@ -19,7 +19,7 @@ Optional extensions:
 ## Install
 
 ```bash
-uv tool install ./tooling/specflow8
+uv tool install git+https://github.com/formal-you/specflow8.git
 ```
 
 Upgrade:
