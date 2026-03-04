@@ -13,7 +13,7 @@
 - Keep document boundaries explicit. / 保持文档边界清晰。
 - Keep cross-document traceability intact. / 保持跨文档可追踪性。
 - Changes to architecture, tasks, and decisions must be linked. / 架构、任务、决策变更必须可关联。
-- After each stage dialogue, execute a git flow style commit (`specflow8 commit`). / 每轮对话完成后必须执行 git flow 风格提交（`specflow8 commit`）。
+- After each stage dialogue, execute a Conventional Commits style commit (`specflow8 commit`). / 每轮对话完成后必须执行 Conventional Commits 风格提交（`specflow8 commit`，如 feat/fix/docs/chore）。
 
 ## Document Index / 文档索引
 - README.md

@@ -17,4 +17,5 @@ scripts:
    - `ARCHITECTURE.md` feature block
    - `PLAN.md` feature block (technical plan)
 4. Report unresolved unknowns and next command.
-5. After updating files, run `specflow8 commit --type gitflow --scope plan --subject "plan [<FEATURE_ID>] 本轮对话完成内容" --body "stage: plan; feature: <FEATURE_ID>" --footer "Refs: <FEATURE_ID>"`.
+5. After updating files, run `specflow8 commit --type docs --scope plan --subject "plan [<FEATURE_ID>] 本轮对话完成内容" --body "stage: plan; feature: <FEATURE_ID>" --footer "Refs: <FEATURE_ID>"`.
+

@@ -8,6 +8,20 @@ from tempfile import NamedTemporaryFile
 import typer
 
 HEADER_PATTERN = re.compile(r"^[a-z][a-z0-9_-]*\([^)]+?\): .+\S$")
+CONVENTIONAL_TYPES = {
+    "feat",
+    "fix",
+    "docs",
+    "chore",
+    "refactor",
+    "test",
+    "perf",
+    "build",
+    "ci",
+    "style",
+    "revert",
+}
+TYPE_ALIAS = {"doc": "docs"}
 
 
 def _run_git(root: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -70,13 +84,23 @@ def _validate_commit_message(message: str) -> list[str]:
     return errors
 
 
+def _normalize_commit_type(raw: str) -> str:
+    value = TYPE_ALIAS.get(raw.strip().lower(), raw.strip().lower())
+    if value not in CONVENTIONAL_TYPES:
+        allowed = ", ".join(sorted(CONVENTIONAL_TYPES))
+        raise typer.BadParameter(
+            f"Invalid --type `{raw}`. Use Conventional Commits type. Allowed: {allowed}."
+        )
+    return value
+
+
 def register(app: typer.Typer) -> None:
     @app.command("commit")
     def commit_command(
         type_: str = typer.Option(
-            "gitflow",
+            "feat",
             "--type",
-            help="Commit header <type> in `<type>(<scope>): <subject>`.",
+            help="Conventional Commit type (e.g. feat, fix, docs).",
         ),
         scope: str | None = typer.Option(
             None,
@@ -136,8 +160,9 @@ def register(app: typer.Typer) -> None:
                 + ". Expected format: <type>(<scope>): <subject>\\n\\n<body>\\n\\n<footer>."
             )
 
+        commit_type = _normalize_commit_type(type_)
         message = _build_message(
-            commit_type=type_.strip(),
+            commit_type=commit_type,
             scope=scope.strip(),
             subject=subject.strip(),
             body=body,

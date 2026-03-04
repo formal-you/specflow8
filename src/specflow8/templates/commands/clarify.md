@@ -12,4 +12,5 @@ Read `NEEDS CLARIFICATION` items from the target feature and resolve top-priorit
 3. UX-impacting behaviors
 
 After clarification updates are written, run:
-`specflow8 commit --type gitflow --scope clarify --subject "clarify [<FEATURE_ID>] 本轮对话完成内容" --body "stage: clarify; feature: <FEATURE_ID>" --footer "Refs: <FEATURE_ID>"`.
+`specflow8 commit --type docs --scope clarify --subject "clarify [<FEATURE_ID>] 本轮对话完成内容" --body "stage: clarify; feature: <FEATURE_ID>" --footer "Refs: <FEATURE_ID>"`.
+

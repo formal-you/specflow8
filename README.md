@@ -139,8 +139,17 @@ specflow8 analyze --feature F-XXX --mode transition
 specflow8 analyze --feature F-XXX --mode strict --json
 
 # 规范提交（建议每阶段完成后执行）
-specflow8 commit --type gitflow --scope tasks --subject "tasks [F-XXX] 本轮对话完成内容" --body "stage: tasks; feature: F-XXX" --footer "Refs: F-XXX"
+specflow8 commit --type feat --scope tasks --subject "tasks [F-XXX] 本轮对话完成内容" --body "stage: tasks; feature: F-XXX" --footer "Refs: F-XXX"
 ```
+
+提交类型请使用 Conventional Commits：
+
+- `feat`: 新功能
+- `fix`: 缺陷修复
+- `docs`: 文档变更
+- `refactor`: 重构
+- `test`: 测试变更
+- `chore`: 杂项维护
 
 ## 命令速查
 

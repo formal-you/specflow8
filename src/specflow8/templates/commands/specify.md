@@ -29,4 +29,5 @@ Rules:
 1. Keep at most 3 `NEEDS CLARIFICATION` markers.
 2. Focus on WHAT/WHY, avoid implementation details.
 3. Return feature id and next-stage command in the final message.
-4. After updating files, run `specflow8 commit --type gitflow --scope specify --subject "specify [<FEATURE_ID>] 本轮对话完成内容" --body "stage: specify; feature: <FEATURE_ID>" --footer "Refs: <FEATURE_ID>"`.
+4. After updating files, run `specflow8 commit --type docs --scope specify --subject "specify [<FEATURE_ID>] 本轮对话完成内容" --body "stage: specify; feature: <FEATURE_ID>" --footer "Refs: <FEATURE_ID>"`.
+

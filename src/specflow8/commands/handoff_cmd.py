@@ -59,8 +59,9 @@ def _suggested_commit(stage: str, feature_id: str | None) -> str:
     subject = f"{stage} [{feature_value}] 本轮对话完成内容"
     body = f"stage: {stage}; feature: {feature_value}"
     footer = f"Refs: {feature_value}"
+    commit_type = "feat" if stage == "implement" else "docs"
     return (
-        f'specflow8 commit --type gitflow --scope {stage} '
+        f'specflow8 commit --type {commit_type} --scope {stage} '
         f'--subject "{subject}" --body "{body}" --footer "{footer}"'
     )
 

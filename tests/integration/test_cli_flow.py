@@ -108,15 +108,15 @@ def test_agent_kit_todo_and_handoff_flow():
         assert handoff_file.exists()
         assert ".specflow8" in handoff_payload["template"]
         assert handoff_payload["suggested_commit"].startswith(
-            "specflow8 commit --type gitflow --scope tasks"
+            "specflow8 commit --type docs --scope tasks"
         )
         text = handoff_file.read_text(encoding="utf-8")
         assert "Subagent Handoff: tasks" in text
         assert "check-prerequisites.sh" in text
-        assert "specflow8 commit --type gitflow --scope tasks" in text
+        assert "specflow8 commit --type docs --scope tasks" in text
 
 
-def test_commit_command_gitflow_branch():
+def test_commit_command_conventional_docs_type():
     if shutil.which("git") is None:
         return
 
@@ -135,7 +135,7 @@ def test_commit_command_gitflow_branch():
             [
                 "commit",
                 "--type",
-                "gitflow",
+                "docs",
                 "--scope",
                 "tasks",
                 "--subject",
@@ -155,7 +155,7 @@ def test_commit_command_gitflow_branch():
             capture_output=True,
             text=True,
         ).stdout.strip()
-        assert subject == "gitflow(tasks): tasks [F-001] 本轮对话完成内容"
+        assert subject == "docs(tasks): tasks [F-001] 本轮对话完成内容"
 
         full_message = subprocess.run(
             ["git", "log", "-1", "--pretty=%B"],
@@ -189,7 +189,7 @@ def test_commit_command_skips_without_changes():
             [
                 "commit",
                 "--type",
-                "gitflow",
+                "docs",
                 "--scope",
                 "tasks",
                 "--subject",
@@ -209,6 +209,29 @@ def test_commit_command_rejects_legacy_stage_feature_options():
     result = runner.invoke(app, ["commit", "--stage", "tasks", "--feature", "F-001"])
     assert result.exit_code != 0
     assert "--stage" in result.output
+
+
+def test_commit_command_rejects_non_conventional_type():
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "commit",
+            "--type",
+            "gitflow",
+            "--scope",
+            "tasks",
+            "--subject",
+            "tasks [F-001] 本轮对话完成内容",
+            "--body",
+            "stage: tasks; feature: F-001",
+            "--footer",
+            "Refs: F-001",
+            "--dry-run",
+        ],
+    )
+    assert result.exit_code != 0
+    assert "Invalid --type" in result.output
 
 
 def test_checklist_type_is_case_insensitive():
