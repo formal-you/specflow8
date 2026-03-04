@@ -29,8 +29,9 @@ def register(app: typer.Typer) -> None:
             None, "--feature", help="Feature ID (defaults to latest)."
         ),
     ) -> None:
+        normalized_type = type.lower()
         allowed = {"requirements", "readiness", "ops"}
-        if type not in allowed:
+        if normalized_type not in allowed:
             raise typer.BadParameter("Checklist type must be requirements/readiness/ops.")
 
         root = Path(".").resolve()
@@ -40,17 +41,17 @@ def register(app: typer.Typer) -> None:
         if not feature_id:
             raise typer.BadParameter("No feature found. Run `specflow8 specify` first.")
 
-        rel_template = f"checklists/{type}.md.j2"
+        rel_template = f"checklists/{normalized_type}.md.j2"
         content = render_template(
             rel_template,
             {
                 "feature_id": feature_id,
                 "today": today(),
-                "type": type,
+                "type": normalized_type,
                 "language": normalize_language(cfg.language),
                 "tr": make_translator(cfg.language),
             },
         )
-        output = root / "checklists" / "specflow8" / feature_id / f"{type}.md"
+        output = root / "checklists" / "specflow8" / feature_id / f"{normalized_type}.md"
         write_text(output, content)
         typer.echo(f"Checklist generated: {output}")
