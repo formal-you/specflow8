@@ -1,9 +1,41 @@
-gates:
-  - id: QGT-REQ
-    description: "Requirements are clear and testable."
-  - id: QGT-PLAN
-    description: "Architecture and plan are aligned."
-  - id: QGT-TASK
-    description: "Tasks have IDs, ownership, dependencies, and DoD."
-  - id: QGT-DEC
-    description: "Decisions include alternatives and consequences."
+rules:
+  - check_id: LEGACY_SCHEMA
+    checker: quality_gates
+    stage: quality_gates
+    severity_by_mode:
+      advisory: warn
+      transition: warn
+      strict: warn
+    message: "Legacy markdown table schema detected in {doc}."
+    suggestion: "Migrate to the latest TASKS.md / DECISIONS.md table headers."
+    params:
+      kind: legacy_schema
+  - check_id: TASK_NO_ADR_OR_WAIVER
+    checker: quality_gates
+    stage: quality_gates
+    severity_by_mode:
+      advisory: warn
+      transition: warn
+      strict: error
+    message: "Task {id} in {feature_id} has neither RelatedADR nor WaiverReason."
+    suggestion: "Link an ADR (`ADR-XXX`) or provide a concrete waiver reason."
+    params:
+      kind: task_no_adr_or_waiver
+  - check_id: CLARIFICATION_LIMIT_EXCEEDED
+    checker: clarification_limit
+    stage: quality_gates
+    severity_by_mode:
+      advisory: warn
+      transition: warn
+      strict: error
+    message: "Feature {feature_id} has {count} clarification markers (limit {limit})."
+    suggestion: "Reduce unresolved clarification markers in README.md."
+  - check_id: TASK_DEP_CYCLE
+    checker: dependency_cycle
+    stage: quality_gates
+    severity_by_mode:
+      advisory: error
+      transition: error
+      strict: error
+    message: "Dependency cycle detected for {feature_id}: {cycle}."
+    suggestion: "Break cyclic `DependsOn` references in TASKS.md."

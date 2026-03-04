@@ -10,6 +10,6 @@
   - Downstream: STATE.md
 
 ## {{ tr("任务模板（必填字段）", "Task Template (Required Fields)") }}
-| ID | Title | Priority | Status | Owner | Due | DependsOn | DoD |
-|---|---|---|---|---|---|---|---|
-| T-XXX | {{ tr("简短任务标题", "Short task title") }} | P0/P1/P2 | todo/in_progress/done/blocked | {{ tr("姓名/角色", "Name/Role") }} | YYYY-MM-DD | {{ tr("任务 ID 或 None", "Task IDs or None") }} | {{ tr("可验证的完成标准", "Verifiable completion statement") }} |
+| ID | Feature | Title | Priority | Status | Owner | Due | DependsOn | RelatedPlan | RelatedADR | Evidence | DoD | WaiverReason |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| T-XXX | F-XXX | {{ tr("简短任务标题", "Short task title") }} | P0/P1/P2 | todo/in_progress/done/blocked | {{ tr("姓名/角色", "Name/Role") }} | YYYY-MM-DD | {{ tr("任务 ID 或 None", "Task IDs or None") }} | F-XXX | ADR-XXX/{{ tr("None", "None") }} | {{ tr("可验证证据", "Verifiable evidence") }} | {{ tr("可验证的完成标准", "Verifiable completion statement") }} | {{ tr("原因或 None", "Waiver reason or None") }} |

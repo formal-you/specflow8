@@ -14,6 +14,12 @@ from .constants import (
 
 
 @dataclass(slots=True)
+class AnalyzeConfig:
+    enforce_commit_trace: bool = True
+    git_log_depth: int = 100
+
+
+@dataclass(slots=True)
 class Specflow8Config:
     version: str = "0.1"
     language: str = "bilingual"
@@ -21,6 +27,8 @@ class Specflow8Config:
     docs_optional_enabled: bool = False
     feature_id_pattern: str = DEFAULT_FEATURE_ID_PATTERN
     clarification_limit: int = DEFAULT_CLARIFICATION_LIMIT
+    governance_mode: str = "transition"
+    analyze: AnalyzeConfig = field(default_factory=AnalyzeConfig)
     review_cadence_defaults: dict[str, str] = field(
         default_factory=lambda: dict(REVIEW_CADENCE_DEFAULTS)
     )
@@ -38,6 +46,7 @@ def load_config(root: Path) -> Specflow8Config:
     if not path.exists():
         return Specflow8Config()
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    analyze_data = data.get("analyze", {}) or {}
     return Specflow8Config(
         version=str(data.get("version", "0.1")),
         language=str(data.get("language", "bilingual")),
@@ -48,6 +57,11 @@ def load_config(root: Path) -> Specflow8Config:
         ),
         clarification_limit=int(
             data.get("clarification_limit", DEFAULT_CLARIFICATION_LIMIT)
+        ),
+        governance_mode=str(data.get("governance_mode", "transition")),
+        analyze=AnalyzeConfig(
+            enforce_commit_trace=bool(analyze_data.get("enforce_commit_trace", True)),
+            git_log_depth=int(analyze_data.get("git_log_depth", 100)),
         ),
         review_cadence_defaults=dict(
             data.get("review_cadence_defaults", REVIEW_CADENCE_DEFAULTS)

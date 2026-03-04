@@ -1,142 +1,49 @@
 from __future__ import annotations
 
-import re
+import json
 from pathlib import Path
 
 import typer
 
 from specflow8.config import load_config
-from specflow8.constants import CORE_DOCS
-from specflow8.io_markdown import extract_feature_block, read_text
 from specflow8.models import QualityFinding
-from specflow8.validators import dependency_cycle, parse_decision_rows, parse_task_rows
-from specflow8.workflow import all_feature_ids, ensure_docs, latest_feature_id
+from specflow8.rule_engine import RuleEngine, build_context
+from specflow8.rule_schema import MODES, load_rules
+from specflow8.workflow import ensure_docs, rule_root
 
 
-def _analyze_docs(root: Path, feature: str | None, run_all: bool) -> list[QualityFinding]:
-    findings: list[QualityFinding] = []
-
-    for doc in CORE_DOCS:
-        path = root / doc
-        if not path.exists():
-            findings.append(
-                QualityFinding(
-                    code="DOC_MISSING",
-                    severity="error",
-                    doc=doc,
-                    feature_id=feature,
-                    message=f"Core doc missing: {doc}",
-                    suggestion="Run `specflow8 init` to repair baseline docs.",
-                )
-            )
-            continue
-
-        content = read_text(path)
-        starts = re.findall(r"<!-- specflow8:feature:(F-\d{3}):start -->", content)
-        ends = re.findall(r"<!-- specflow8:feature:(F-\d{3}):end -->", content)
-        for fid in set(starts + ends):
-            if starts.count(fid) != ends.count(fid):
-                findings.append(
-                    QualityFinding(
-                        code="MARKER_UNBALANCED",
-                        severity="error",
-                        doc=doc,
-                        feature_id=fid,
-                        message=f"Unbalanced markers for {fid}.",
-                        suggestion="Fix start/end marker pairs for this feature block.",
-                    )
-                )
-
-    target_features: list[str]
-    if run_all:
-        target_features = all_feature_ids(root)
-    elif feature:
-        target_features = [feature]
-    else:
-        latest = latest_feature_id(root)
-        target_features = [latest] if latest else []
-
-    if feature and feature not in all_feature_ids(root):
-        findings.append(
-            QualityFinding(
-                code="FEATURE_NOT_FOUND",
-                severity="error",
-                doc="*",
-                feature_id=feature,
-                message=f"Feature {feature} not found in docs.",
-                suggestion="Create feature with `specflow8 specify` or use --all.",
-            )
-        )
-
-    tasks_content = read_text(root / "TASKS.md")
-    task_rows = parse_task_rows(tasks_content)
-    decision_content = read_text(root / "DECISIONS.md")
-    decision_rows = parse_decision_rows(decision_content)
-
-    for fid in target_features:
-        has_tasks = fid in tasks_content
-        if not has_tasks:
-            findings.append(
-                QualityFinding(
-                    code="TASKS_MISSING_FEATURE",
-                    severity="warn",
-                    doc="TASKS.md",
-                    feature_id=fid,
-                    message=f"No task section found for {fid}.",
-                    suggestion=f"Run `specflow8 tasks --feature {fid}`.",
-                )
-            )
-        has_decisions = fid in decision_content
-        if not has_decisions:
-            findings.append(
-                QualityFinding(
-                    code="DECISION_MISSING_FEATURE",
-                    severity="warn",
-                    doc="DECISIONS.md",
-                    feature_id=fid,
-                    message=f"No decision section found for {fid}.",
-                    suggestion=f"Run `specflow8 decide --feature {fid} ...`.",
-                )
-            )
-        if task_rows:
-            cycles = dependency_cycle(task_rows)
-            if cycles:
-                findings.append(
-                    QualityFinding(
-                        code="TASK_DEP_CYCLE",
-                        severity="error",
-                        doc="TASKS.md",
-                        feature_id=fid,
-                        message=f"Dependency cycle detected: {', '.join(cycles)}",
-                        suggestion="Break cyclic DependsOn references.",
-                    )
-                )
-        readme_feature_block = extract_feature_block(read_text(root / "README.md"), fid) or ""
-        clarify_count = readme_feature_block.count("NEEDS CLARIFICATION")
-        if clarify_count > 3:
-            findings.append(
-                QualityFinding(
-                    code="CLARIFICATION_LIMIT_EXCEEDED",
-                    severity="warn",
-                    doc="README.md",
-                    feature_id=fid,
-                    message=f"{clarify_count} clarification markers found (limit 3).",
-                    suggestion="Refine assumptions and keep at most 3 markers.",
-                )
-            )
-
-    if not findings:
-        findings.append(
-            QualityFinding(
-                code="ANALYZE_OK",
-                severity="info",
-                doc="*",
-                feature_id=feature,
-                message="No blocking issues found.",
-                suggestion="Continue with checklist or implement flow.",
-            )
-        )
-    return findings
+def _serialize_findings(
+    findings: list[QualityFinding],
+    mode: str,
+    feature: str | None,
+    run_all: bool,
+    enforce_commit_trace: bool,
+) -> dict[str, object]:
+    payload = {
+        "mode": mode,
+        "feature": feature,
+        "all": run_all,
+        "enforce_commit_trace": enforce_commit_trace,
+        "summary": {
+            "info": len([f for f in findings if f.severity == "info"]),
+            "warn": len([f for f in findings if f.severity == "warn"]),
+            "error": len([f for f in findings if f.severity == "error"]),
+        },
+        "findings": [
+            {
+                "code": f.code,
+                "severity": f.severity,
+                "stage": f.stage,
+                "doc": f.doc,
+                "feature_id": f.feature_id,
+                "message": f.message,
+                "suggestion": f.suggestion,
+                "rule_id": f.rule_id,
+            }
+            for f in findings
+        ],
+    }
+    return payload
 
 
 def register(app: typer.Typer) -> None:
@@ -149,17 +56,93 @@ def register(app: typer.Typer) -> None:
         fail_on_warning: bool = typer.Option(
             False, "--fail-on-warning", help="Return non-zero exit code on warnings."
         ),
+        mode: str | None = typer.Option(
+            None,
+            "--mode",
+            help="Governance mode: advisory | transition | strict.",
+        ),
+        json_output: bool = typer.Option(
+            False, "--json", help="Emit structured JSON findings."
+        ),
+        enforce_commit_trace: bool | None = typer.Option(
+            None,
+            "--enforce-commit-trace/--no-enforce-commit-trace",
+            help="Enable/disable commit trace checks.",
+        ),
     ) -> None:
         root = Path(".").resolve()
         cfg = load_config(root)
         ensure_docs(root, cfg, cfg.language, cfg.docs_optional_enabled)
-        findings = _analyze_docs(root, feature=feature, run_all=all)
-        for item in findings:
-            scope = item.feature_id or "-"
-            typer.echo(
-                f"[{item.severity.upper()}] {item.code} | {item.doc} | {scope} | {item.message}"
+
+        mode_value = (mode or cfg.governance_mode or "transition").strip().lower()
+        if mode_value not in MODES:
+            raise typer.BadParameter(
+                f"Invalid --mode `{mode_value}`. Allowed: advisory | transition | strict."
             )
+        commit_trace_enabled = (
+            cfg.analyze.enforce_commit_trace
+            if enforce_commit_trace is None
+            else enforce_commit_trace
+        )
+
+        rules, schema_errors = load_rules(rule_root())
+        if schema_errors:
+            for err in schema_errors:
+                typer.echo(f"[ERROR] RULE_SCHEMA_INVALID | {err.file} | - | {err.message}")
+            raise typer.Exit(code=1)
+
+        engine = RuleEngine(rules)
+        ctx = build_context(
+            root=root,
+            mode=mode_value,  # type: ignore[arg-type]
+            feature=feature,
+            run_all=all,
+            enforce_commit_trace=commit_trace_enabled,
+            git_log_depth=max(1, cfg.analyze.git_log_depth),
+            clarification_limit=cfg.clarification_limit,
+        )
+        findings = engine.run(ctx)
+        if not findings:
+            findings = [
+                QualityFinding(
+                    code="ANALYZE_OK",
+                    severity="info",
+                    doc="*",
+                    feature_id=feature,
+                    message="No issues found.",
+                    suggestion="Continue with checklist or implement flow.",
+                    stage="quality_gates",
+                    rule_id="engine",
+                )
+            ]
+
+        if json_output:
+            typer.echo(
+                json.dumps(
+                    _serialize_findings(
+                        findings=findings,
+                        mode=mode_value,
+                        feature=feature,
+                        run_all=all,
+                        enforce_commit_trace=commit_trace_enabled,
+                    ),
+                    ensure_ascii=False,
+                )
+            )
+        else:
+            for item in findings:
+                scope = item.feature_id or "-"
+                typer.echo(
+                    f"[{item.severity.upper()}] {item.code} | {item.stage} | {item.doc} | {scope} | {item.message}"
+                )
+            info_count = len([f for f in findings if f.severity == "info"])
+            warn_count = len([f for f in findings if f.severity == "warn"])
+            error_count = len([f for f in findings if f.severity == "error"])
+            typer.echo(
+                f"Summary: info={info_count} warn={warn_count} error={error_count} mode={mode_value}"
+            )
+
         has_error = any(f.severity == "error" for f in findings)
         has_warn = any(f.severity == "warn" for f in findings)
-        if has_error or (fail_on_warning and has_warn):
+        if has_error or (has_warn and fail_on_warning):
             raise typer.Exit(code=1)

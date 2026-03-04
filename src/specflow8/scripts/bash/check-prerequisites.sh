@@ -74,7 +74,7 @@ if (include_tasks or require_tasks) and feature_id and (root / "TASKS.md").exist
     block_m = block_re.search(tasks_text)
     if block_m:
         row_re = re.compile(
-            r"^\|\s*T-\d{3}\s*\|\s*.*?\|\s*P[0-2]\s*\|\s*(todo|in_progress|done|blocked)\s*\|\s*.*?\|",
+            r"^\|\s*T-\d{3}\s*\|\s*(?:.*?\|\s*){1,2}P[0-2]\s*\|\s*(todo|in_progress|done|blocked)\s*\|\s*.*?\|",
             re.M,
         )
         statuses = row_re.findall(block_m.group(1))

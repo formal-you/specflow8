@@ -21,8 +21,9 @@ def _build_row(task: TaskRecord) -> str:
     due = task.due.isoformat() if isinstance(task.due, date) else "None"
     deps = ",".join(task.depends_on) if task.depends_on else "None"
     return (
-        f"| {task.id} | {task.title} | {task.priority} | {task.status} | "
-        f"{task.owner} | {due} | {deps} | {task.dod} |"
+        f"| {task.id} | {task.feature_id} | {task.title} | {task.priority} | {task.status} | "
+        f"{task.owner} | {due} | {deps} | {task.related_plan} | {task.related_adr} | "
+        f"{task.evidence} | {task.dod} | {task.waiver_reason} |"
     )
 
 
@@ -60,7 +61,11 @@ def register(app: typer.Typer) -> None:
                 owner="Maintainer",
                 due=default_due(5),
                 depends_on=[],
+                related_plan=feature_id,
+                related_adr="None",
+                evidence="pending: architecture slice review",
                 dod="ARCHITECTURE.md feature section updated and reviewed",
+                waiver_reason="ADR pending during initial task generation",
             )
         )
         n += 1
@@ -74,7 +79,11 @@ def register(app: typer.Typer) -> None:
                 owner="Maintainer",
                 due=default_due(7),
                 depends_on=[generated[0].id],
+                related_plan=feature_id,
+                related_adr="None",
+                evidence="pending: contract review checklist",
                 dod="Contract assumptions and interfaces captured in feature sections",
+                waiver_reason="ADR pending during initial task generation",
             )
         )
         n += 1
@@ -89,7 +98,11 @@ def register(app: typer.Typer) -> None:
                     owner="Maintainer",
                     due=default_due(8),
                     depends_on=[generated[-1].id],
+                    related_plan=feature_id,
+                    related_adr="None",
+                    evidence="pending: test scenario list",
                     dod="At least one integration scenario and one failure scenario documented",
+                    waiver_reason="ADR pending during initial task generation",
                 )
             )
             n += 1
@@ -103,7 +116,11 @@ def register(app: typer.Typer) -> None:
                 owner="Maintainer",
                 due=default_due(10),
                 depends_on=[generated[-1].id],
+                related_plan=feature_id,
+                related_adr="None",
+                evidence="pending: readiness checklist output",
                 dod="Readiness checklist passes without blocking findings",
+                waiver_reason="ADR pending during initial task generation",
             )
         )
 
@@ -115,8 +132,8 @@ def register(app: typer.Typer) -> None:
 
         rows = "\n".join(_build_row(task) for task in generated)
         body = f"""### Task Queue / 任务队列
-| ID | Title | Priority | Status | Owner | Due | DependsOn | DoD |
-|---|---|---|---|---|---|---|---|
+| ID | Feature | Title | Priority | Status | Owner | Due | DependsOn | RelatedPlan | RelatedADR | Evidence | DoD | WaiverReason |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
 {rows}
 """
         upsert_doc_feature(root, "TASKS.md", feature_id, "Execution Tasks", body)

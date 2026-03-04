@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 import typer
@@ -12,15 +11,24 @@ from specflow8.workflow import ensure_docs, latest_feature_id, today, upsert_doc
 
 
 def _update_task_status(block: str, task_id: str, status: str) -> str:
-    pattern = re.compile(
-        rf"^\|\s*{re.escape(task_id)}\s*\|\s*(.*?)\s*\|\s*(P[0-2])\s*\|\s*(todo|in_progress|done|blocked)\s*\|",
-        re.M,
-    )
-    return pattern.sub(
-        lambda m: f"| {task_id} | {m.group(1)} | {m.group(2)} | {status} |",
-        block,
-        count=1,
-    )
+    updated: list[str] = []
+    for line in block.splitlines():
+        text = line.strip()
+        if not (text.startswith("|") and text.endswith("|")):
+            updated.append(line)
+            continue
+        cells = [item.strip() for item in text.strip("|").split("|")]
+        if not cells or cells[0] != task_id:
+            updated.append(line)
+            continue
+        # Legacy table status index is 3, new table status index is 4.
+        status_idx = 4 if len(cells) >= 13 else 3
+        if status_idx < len(cells):
+            cells[status_idx] = status
+            updated.append("| " + " | ".join(cells) + " |")
+        else:
+            updated.append(line)
+    return "\n".join(updated)
 
 
 def register(app: typer.Typer) -> None:

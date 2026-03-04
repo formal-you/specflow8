@@ -1,9 +1,107 @@
 rules:
-  - id: CST-001
-    check: "Feature markers are balanced in all docs."
-  - id: CST-002
-    check: "Each feature has task entries or explicit reason."
-  - id: CST-003
-    check: "Each major feature has at least one decision entry."
-  - id: CST-004
-    check: "Clarification markers do not exceed configured limit."
+  - check_id: DOC_MISSING
+    checker: doc_existence
+    stage: doc_existence
+    severity_by_mode:
+      advisory: warn
+      transition: error
+      strict: error
+    message: "Core doc missing: {doc}"
+    suggestion: "Run `specflow8 init` to restore the baseline documents."
+  - check_id: FEATURE_NOT_FOUND
+    checker: doc_existence
+    stage: doc_existence
+    severity_by_mode:
+      advisory: warn
+      transition: error
+      strict: error
+    message: "Target feature {feature_id} is not present in managed docs."
+    suggestion: "Use `specflow8 specify` first or switch to `--all`."
+    params:
+      kind: feature_not_found
+  - check_id: MARKER_UNBALANCED
+    checker: marker_balance
+    stage: syntax_marker
+    severity_by_mode:
+      advisory: warn
+      transition: error
+      strict: error
+    message: "Feature markers are unbalanced in {doc} for {feature_id}."
+    suggestion: "Fix start/end marker pairs for this feature block."
+  - check_id: TRACE_LINK_MISSING
+    checker: trace_link_integrity
+    stage: traceability
+    severity_by_mode:
+      advisory: warn
+      transition: warn
+      strict: error
+    message: "Trace link is missing or invalid at {doc} ({id}, field={field})."
+    suggestion: "Use canonical IDs (`F-XXX`, `T-XXX`, `ADR-XXX`) for trace fields."
+    params:
+      kind: missing
+  - check_id: TRACE_TARGET_NOT_FOUND
+    checker: trace_link_integrity
+    stage: traceability
+    severity_by_mode:
+      advisory: warn
+      transition: error
+      strict: error
+    message: "Trace target `{target}` referenced from {doc} ({id}, field={field}) was not found."
+    suggestion: "Create the missing target record or fix the reference."
+    params:
+      kind: target_not_found
+  - check_id: FEATURE_NO_TASK_OR_REASON
+    checker: coverage_checks
+    stage: traceability
+    severity_by_mode:
+      advisory: warn
+      transition: warn
+      strict: error
+    message: "Feature {feature_id} has no linked tasks and no waiver reason."
+    suggestion: "Add tasks in TASKS.md or document a waiver in PLAN.md."
+    params:
+      kind: feature_no_task_or_reason
+  - check_id: FEATURE_NO_ADR_OR_REASON
+    checker: coverage_checks
+    stage: traceability
+    severity_by_mode:
+      advisory: warn
+      transition: warn
+      strict: error
+    message: "Feature {feature_id} has no ADR linkage and no waiver reason."
+    suggestion: "Record an ADR in DECISIONS.md or document a waiver in PLAN.md."
+    params:
+      kind: feature_no_adr_or_reason
+  - check_id: COMMIT_TRACE_MISSING
+    checker: commit_trace
+    stage: commit_trace
+    severity_by_mode:
+      advisory: warn
+      transition: warn
+      strict: error
+    message: "Commit trace evidence is missing for {feature_id} within recent git history."
+    suggestion: "Run `specflow8 commit` with proper feature references and re-run analyze."
+    params:
+      kind: missing
+  - check_id: COMMIT_TEMPLATE_INVALID
+    checker: commit_trace
+    stage: commit_trace
+    severity_by_mode:
+      advisory: warn
+      transition: error
+      strict: error
+    message: "Commit trace exists for {feature_id} but does not match the required template."
+    suggestion: "Use `<type>(<scope>): <subject>` plus body/footer fields (`stage`, `feature`, `Refs`)."
+    params:
+      kind: template_invalid
+  - check_id: COMMIT_TRACE_DIRTY_WORKTREE
+    checker: commit_trace
+    stage: commit_trace
+    severity_by_mode:
+      advisory: info
+      transition: warn
+      strict: error
+    message: "Uncommitted core document changes detected: commit trace can be incomplete."
+    suggestion: "Commit staged docs first using `specflow8 commit`."
+    params:
+      kind: dirty_worktree

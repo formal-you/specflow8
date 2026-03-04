@@ -220,3 +220,142 @@ def test_checklist_type_is_case_insensitive():
         result = runner.invoke(app, ["checklist", "--type", "Readiness"])
         assert result.exit_code == 0
         assert Path("checklists/specflow8/F-001/readiness.md").exists()
+
+
+def test_analyze_json_output_has_stable_shape():
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        assert runner.invoke(app, ["init", "--root", "."]).exit_code == 0
+        assert runner.invoke(app, ["specify", "Build task triage board"]).exit_code == 0
+        assert (
+            runner.invoke(app, ["plan", "--feature", "F-001", "Python + FastAPI"]).exit_code
+            == 0
+        )
+        assert runner.invoke(app, ["tasks", "--feature", "F-001"]).exit_code == 0
+        assert (
+            runner.invoke(
+                app,
+                [
+                    "decide",
+                    "--feature",
+                    "F-001",
+                    "--title",
+                    "Use API-first",
+                    "--context",
+                    "Need stable contracts",
+                    "--choice",
+                    "Adopt API-first design",
+                ],
+            ).exit_code
+            == 0
+        )
+
+        result = runner.invoke(app, ["analyze", "--feature", "F-001", "--json"])
+        assert result.exit_code == 0
+        payload = json.loads(result.stdout.strip().splitlines()[-1])
+        assert set(payload.keys()) == {
+            "mode",
+            "feature",
+            "all",
+            "enforce_commit_trace",
+            "summary",
+            "findings",
+        }
+        if payload["findings"]:
+            item = payload["findings"][0]
+            assert set(item.keys()) == {
+                "code",
+                "severity",
+                "stage",
+                "doc",
+                "feature_id",
+                "message",
+                "suggestion",
+                "rule_id",
+            }
+
+
+def test_analyze_strict_fails_when_task_has_no_adr_or_waiver():
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        assert runner.invoke(app, ["init", "--root", "."]).exit_code == 0
+        assert runner.invoke(app, ["specify", "Build task triage board"]).exit_code == 0
+        assert (
+            runner.invoke(app, ["plan", "--feature", "F-001", "Python + FastAPI"]).exit_code
+            == 0
+        )
+        assert runner.invoke(app, ["tasks", "--feature", "F-001"]).exit_code == 0
+
+        tasks_md = Path("TASKS.md").read_text(encoding="utf-8")
+        tasks_md = tasks_md.replace(
+            "ADR pending during initial task generation", "None"
+        )
+        Path("TASKS.md").write_text(tasks_md, encoding="utf-8")
+
+        result = runner.invoke(
+            app,
+            [
+                "analyze",
+                "--feature",
+                "F-001",
+                "--mode",
+                "strict",
+                "--no-enforce-commit-trace",
+            ],
+        )
+        assert result.exit_code == 1
+        assert "TASK_NO_ADR_OR_WAIVER" in result.stdout
+
+
+def test_analyze_reports_commit_trace_missing_when_no_feature_commit():
+    if shutil.which("git") is None:
+        return
+
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        subprocess.run(["git", "init"], check=True)
+        subprocess.run(["git", "config", "user.name", "Specflow8 Bot"], check=True)
+        subprocess.run(
+            ["git", "config", "user.email", "specflow8@example.com"], check=True
+        )
+
+        assert runner.invoke(app, ["init", "--root", "."]).exit_code == 0
+        assert runner.invoke(app, ["specify", "Build task triage board"]).exit_code == 0
+        assert (
+            runner.invoke(app, ["plan", "--feature", "F-001", "Python + FastAPI"]).exit_code
+            == 0
+        )
+        assert runner.invoke(app, ["tasks", "--feature", "F-001"]).exit_code == 0
+        assert (
+            runner.invoke(
+                app,
+                [
+                    "decide",
+                    "--feature",
+                    "F-001",
+                    "--title",
+                    "Use API-first",
+                    "--context",
+                    "Need stable contracts",
+                    "--choice",
+                    "Adopt API-first design",
+                ],
+            ).exit_code
+            == 0
+        )
+        subprocess.run(["git", "add", "-A"], check=True)
+        subprocess.run(["git", "commit", "-m", "chore(repo): bootstrap docs"], check=True)
+
+        result = runner.invoke(
+            app,
+            [
+                "analyze",
+                "--feature",
+                "F-001",
+                "--mode",
+                "strict",
+                "--enforce-commit-trace",
+            ],
+        )
+        assert result.exit_code == 1
+        assert "COMMIT_TRACE_MISSING" in result.stdout
