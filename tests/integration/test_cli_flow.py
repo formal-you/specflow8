@@ -209,3 +209,14 @@ def test_commit_command_rejects_legacy_stage_feature_options():
     result = runner.invoke(app, ["commit", "--stage", "tasks", "--feature", "F-001"])
     assert result.exit_code != 0
     assert "--stage" in result.output
+
+
+def test_checklist_type_is_case_insensitive():
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        assert runner.invoke(app, ["init", "--root", "."]).exit_code == 0
+        assert runner.invoke(app, ["specify", "Build task triage board"]).exit_code == 0
+
+        result = runner.invoke(app, ["checklist", "--type", "Readiness"])
+        assert result.exit_code == 0
+        assert Path("checklists/specflow8/F-001/readiness.md").exists()

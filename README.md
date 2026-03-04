@@ -94,11 +94,11 @@ specflow8 checklist --type readiness --feature F-001
 # 12) derive implementation order from TASKS.md
 specflow8 implement --feature F-001 --dry-run
 
-# 13) create commit (default auto message)
-specflow8 commit --dry-run
-
-# 13b) create commit (explicit template message)
+# 13) preview commit message (template fields are required)
 specflow8 commit --type feat --scope cli --subject "document command usage" --body "validated CLI behavior" --footer "Refs: F-001" --dry-run
+
+# 13b) create commit
+specflow8 commit --type feat --scope cli --subject "document command usage" --body "validated CLI behavior" --footer "Refs: F-001"
 
 # 14) environment sanity check
 specflow8 check
@@ -145,5 +145,4 @@ Verified behavior:
 
 Observed mismatches (actual vs expectation):
 
-- `specflow8 commit --dry-run` does not always preview the message. On a clean working tree, it prints `No changes detected. Skipped commit.`. To force preview on a clean tree, use `--allow-empty --dry-run`.
-- `specflow8 checklist --type` is effectively lowercase-only in current behavior (`requirements | readiness | ops`). For example, `--type Readiness` fails.
+- None in this smoke run.
