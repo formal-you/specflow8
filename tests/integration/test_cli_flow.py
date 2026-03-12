@@ -279,6 +279,7 @@ def test_analyze_json_output_has_stable_shape():
         payload = json.loads(result.stdout.strip().splitlines()[-1])
         assert set(payload.keys()) == {
             "mode",
+            "profile",
             "feature",
             "all",
             "enforce_commit_trace",
