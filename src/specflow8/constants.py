@@ -20,7 +20,7 @@ FEATURE_END_FMT = "<!-- specflow8:feature:{feature_id}:end -->"
 MANUAL_START = "<!-- specflow8:manual:start -->"
 MANUAL_END = "<!-- specflow8:manual:end -->"
 
-DEFAULT_FEATURE_ID_PATTERN = r"F-\d{3}"
+DEFAULT_FEATURE_ID_PATTERN = r"F-\d{3,}"
 DEFAULT_CLARIFICATION_LIMIT = 3
 
 REVIEW_CADENCE_DEFAULTS = {

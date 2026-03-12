@@ -26,6 +26,7 @@ TEMPLATE_MAP = {
     "PLAN.md": "core/PLAN.md.j2",
     "TASKS.md": "core/TASKS.md.j2",
     "DECISIONS.md": "core/DECISIONS.md.j2",
+    "SPECS.md": "core/SPECS.md.j2",
     "RUNBOOK.md": "optional/RUNBOOK.md.j2",
     "INTERFACES.md": "optional/INTERFACES.md.j2",
     PR_TEMPLATE_DOC: "meta/PULL_REQUEST_TEMPLATE.md.j2",
