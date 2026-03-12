@@ -13,7 +13,7 @@ from specflow8.cli import app
 runner = CliRunner()
 
 
-def test_init_small_monolith_creates_only_3_docs():
+def test_init_small_monolith_creates_workflow_docs_without_agents():
     with runner.isolated_filesystem():
         result = runner.invoke(
             app, ["init", "--root", ".", "--scale", "small", "--type", "monolith"]
@@ -21,12 +21,13 @@ def test_init_small_monolith_creates_only_3_docs():
         assert result.exit_code == 0
         assert "small-monolith" in result.stdout
         assert Path("README.md").exists()
+        assert Path("ARCHITECTURE.md").exists()
+        assert Path("DOMAIN.md").exists()
+        assert Path("PLAN.md").exists()
+        assert Path("STATE.md").exists()
         assert Path("TASKS.md").exists()
         assert Path("DECISIONS.md").exists()
         assert not Path("AGENTS.md").exists()
-        assert not Path("DOMAIN.md").exists()
-        assert not Path("PLAN.md").exists()
-        assert not Path("STATE.md").exists()
         assert not Path("SPECS.md").exists()
 
 
@@ -135,8 +136,7 @@ def test_profile_upgrade_adds_docs():
         result = runner.invoke(app, ["profile", "upgrade", "--scale", "medium"])
         assert result.exit_code == 0
         assert Path("AGENTS.md").exists()
-        assert Path("PLAN.md").exists()
-        assert Path("STATE.md").exists()
+        assert Path(".github/PULL_REQUEST_TEMPLATE.md").exists()
 
 
 def test_profile_upgrade_dry_run_does_not_create():
@@ -160,6 +160,27 @@ def test_profile_upgrade_same_tier_no_op():
         result = runner.invoke(app, ["profile", "upgrade", "--scale", "medium"])
         assert result.exit_code == 0
         assert "already" in result.stdout
+
+
+def test_profile_upgrade_recreates_missing_pr_template():
+    with runner.isolated_filesystem():
+        runner.invoke(
+            app, ["init", "--root", ".", "--scale", "medium", "--type", "monolith"]
+        )
+        Path(".github/PULL_REQUEST_TEMPLATE.md").unlink()
+
+        result = runner.invoke(app, ["profile", "upgrade", "--scale", "large"])
+        assert result.exit_code == 0
+        assert Path(".github/PULL_REQUEST_TEMPLATE.md").exists()
+
+
+def test_profile_upgrade_rejects_invalid_scale():
+    with runner.isolated_filesystem():
+        runner.invoke(app, ["init", "--root", "."])
+
+        result = runner.invoke(app, ["profile", "upgrade", "--scale", "tiny"])
+        assert result.exit_code != 0
+        assert "Invalid --scale" in result.output
 
 
 def test_analyze_small_profile_does_not_report_missing_agents():

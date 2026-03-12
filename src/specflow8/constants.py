@@ -20,7 +20,7 @@ FEATURE_END_FMT = "<!-- specflow8:feature:{feature_id}:end -->"
 MANUAL_START = "<!-- specflow8:manual:start -->"
 MANUAL_END = "<!-- specflow8:manual:end -->"
 
-DEFAULT_FEATURE_ID_PATTERN = r"F-\d{3,}"
+DEFAULT_FEATURE_ID_PATTERN = r"F-\d{3}"
 DEFAULT_CLARIFICATION_LIMIT = 3
 
 REVIEW_CADENCE_DEFAULTS = {
@@ -41,12 +41,20 @@ SCALES = ("small", "medium", "large")
 #: Valid project type values (architecture)
 PROJECT_TYPES = ("monolith", "distributed", "multi-team")
 
-# Smallest required doc set per profile ("scale-type")
-# small: 3 docs (no process overhead)
-# medium: 7 docs (standard 8-doc set minus SPECS)
-# large: 9 docs (full 8-doc set + SPECS.md)
-_SMALL_DOCS = ["README.md", "TASKS.md", "DECISIONS.md"]
-_SMALL_DIST_DOCS = ["README.md", "ARCHITECTURE.md", "TASKS.md", "DECISIONS.md"]
+# Required doc set per profile ("scale-type")
+# small: keep workflow docs but skip AGENTS/SPECS to reduce governance overhead
+# medium: standard 8-doc set minus SPECS
+# large: full 8-doc set + SPECS.md
+_SMALL_DOCS = [
+    "README.md",
+    "ARCHITECTURE.md",
+    "DOMAIN.md",
+    "STATE.md",
+    "PLAN.md",
+    "TASKS.md",
+    "DECISIONS.md",
+]
+_SMALL_DIST_DOCS = list(_SMALL_DOCS)
 _MEDIUM_DOCS = [
     "AGENTS.md", "README.md", "ARCHITECTURE.md", "DOMAIN.md",
     "STATE.md", "PLAN.md", "TASKS.md", "DECISIONS.md",

@@ -6,11 +6,11 @@ from pathlib import Path
 import typer
 
 from specflow8.config import load_config, save_config
+from specflow8.constants import PROJECT_TYPES, SCALES
 from specflow8.profiles import (
     list_profiles,
     resolve_profile,
     upgrade_profile,
-    profile_to_config_dict,
 )
 from specflow8.workflow import ensure_docs, normalize_language
 
@@ -117,6 +117,14 @@ def register(app: typer.Typer) -> None:
         root = Path(".").resolve()
         cfg = load_config(root)
         current = resolve_profile(cfg.project.scale, cfg.project.type)
+        if scale is not None and scale not in SCALES:
+            raise typer.BadParameter(
+                f"Invalid --scale `{scale}`. Allowed: {' | '.join(SCALES)}."
+            )
+        if project_type is not None and project_type not in PROJECT_TYPES:
+            raise typer.BadParameter(
+                f"Invalid --type `{project_type}`. Allowed: {' | '.join(PROJECT_TYPES)}."
+            )
         new_preset, new_docs = upgrade_profile(
             current,
             new_scale=scale,
@@ -165,8 +173,11 @@ def register(app: typer.Typer) -> None:
         # Generate missing docs
         language = normalize_language(lang or cfg.language)
         created, skipped = ensure_docs(
-            root=root, cfg=cfg, language=language,
+            root=root,
+            cfg=cfg,
+            language=language,
             with_optional_docs=cfg.docs_optional_enabled,
+            include_meta_docs=True,
         )
         if not json_output:
             typer.echo(f"Created: {', '.join(created) if created else 'None'}")

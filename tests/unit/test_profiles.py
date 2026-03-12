@@ -27,17 +27,21 @@ def test_small_profile_has_fewer_docs():
     small = resolve_profile("small", "monolith")
     large = resolve_profile("large", "monolith")
     assert len(small.docs_core) < len(large.docs_core)
-    assert len(small.docs_core) == 3
+    assert len(small.docs_core) == 7
 
 
 def test_small_monolith_doc_set():
     p = resolve_profile("small", "monolith")
     assert "README.md" in p.docs_core
+    assert "PLAN.md" in p.docs_core
+    assert "DOMAIN.md" in p.docs_core
+    assert "ARCHITECTURE.md" in p.docs_core
+    assert "STATE.md" in p.docs_core
     assert "TASKS.md" in p.docs_core
     assert "DECISIONS.md" in p.docs_core
-    # No heavy docs
+    # Small keeps workflow docs, but still skips the heaviest governance docs.
     assert "AGENTS.md" not in p.docs_core
-    assert "PLAN.md" not in p.docs_core
+    assert "SPECS.md" not in p.docs_core
 
 
 def test_large_profile_has_specs():

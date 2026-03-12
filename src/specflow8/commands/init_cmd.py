@@ -7,7 +7,7 @@ import typer
 
 from specflow8.config import Specflow8Config, load_config, save_config
 from specflow8.constants import SCALES, PROJECT_TYPES
-from specflow8.profiles import resolve_profile, profile_to_config_dict
+from specflow8.profiles import resolve_profile
 from specflow8.workflow import ensure_agent_kit, ensure_docs, normalize_language
 
 
