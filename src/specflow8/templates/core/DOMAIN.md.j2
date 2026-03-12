@@ -11,3 +11,28 @@
 
 ## {{ tr("范围", "Scope") }}
 {{ tr("只记录业务语义，不记录技术实现。", "Business/domain semantics only, no implementation details.") }}
+
+## {{ tr("领域建模模板（强约束）", "Domain Modeling Template (Strict)") }}
+- Feature: `F-XXX`
+- RelatedSpec: `S-XXX`
+- RelatedPlan: `P-XXX`
+
+### {{ tr("参与者与场景", "Actors and Scenarios") }}
+- {{ tr("Primary Actor", "Primary Actor") }}:
+- {{ tr("Secondary Actors", "Secondary Actors") }}:
+- {{ tr("关键业务场景", "Key business scenarios") }}:
+
+### {{ tr("领域对象与术语", "Entities and Glossary") }}
+| Term | Definition | Constraints |
+|---|---|---|
+| {{ tr("术语", "Term") }} | {{ tr("定义", "Definition") }} | {{ tr("约束", "Constraints") }} |
+
+### {{ tr("业务规则（可验证）", "Business Rules (Verifiable)") }}
+| RuleID | Description | Source | Related AC |
+|---|---|---|---|
+| BR-XXX | {{ tr("规则描述", "Rule description") }} | {{ tr("法规/产品策略/业务约定", "Policy/regulation/product agreement") }} | AC-XXX |
+
+### {{ tr("边界与非目标", "Boundaries and Non-Goals") }}
+- {{ tr("In Scope", "In Scope") }}:
+- {{ tr("Out of Scope", "Out of Scope") }}:
+- {{ tr("假设与前提", "Assumptions") }}:

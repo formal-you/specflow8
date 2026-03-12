@@ -1,0 +1,65 @@
+# {{ tr("变更概述", "Change Summary") }}
+{{ tr("一句话说明本 PR 做了什么：", "One sentence for what this PR changes:") }}
+
+## {{ tr("关联链路（必填）", "Trace Links (Required)") }}
+- Spec: S-XXX (link)
+- Plan: P-XXX (link, if applicable)
+- ADR: ADR-XXXX (link, required for architecture/interface/data/security decisions)
+- Issue/Task: #XXX / T-XXX
+
+## {{ tr("Traceability（系统校验字段）", "Traceability (System Validation Fields)") }}
+- Feature IDs: F-XXX
+- Related Plan: F-XXX
+- Related Tasks: T-XXX
+- Related ADR: ADR-XXX
+- Stage: specify | plan | tasks | decide | implement | review
+
+## {{ tr("变更类型", "Change Type") }}
+- [ ] Feature
+- [ ] Bugfix
+- [ ] Refactor
+- [ ] Docs
+- [ ] Chore/Build
+- [ ] Breaking Change
+
+## {{ tr("变更详情", "Change Details") }}
+- {{ tr("主要改动点 1：", "Major change 1:") }}
+- {{ tr("主要改动点 2：", "Major change 2:") }}
+
+## {{ tr("验收标准覆盖（必填）", "Acceptance Criteria Coverage (Required)") }}
+> {{ tr("逐条对齐 Spec 的 AC；没有覆盖就说明原因与后续计划", "Map each AC from Spec; if uncovered, explain reason and follow-up plan") }}
+
+- AC-001: {{ tr("已实现；证据：测试/截图/日志链接", "implemented; evidence: test/screenshot/log link") }}
+- AC-002: {{ tr("部分覆盖；原因：", "partially covered; reason:") }}
+- AC-003: {{ tr("未覆盖；原因与后续任务：", "not covered; reason and follow-up task:") }}
+
+## {{ tr("测试与验证", "Testing and Verification") }}
+- [ ] Unit
+- [ ] Integration
+- [ ] E2E
+- [ ] {{ tr("手工验证（写步骤）", "Manual verification (document steps)") }}
+- [ ] specflow8 analyze --mode transition --enforce-commit-trace
+- {{ tr("关键测试命令/结果：", "Key test commands/results:") }}
+  - `...`
+- Evidence:
+- {{ tr("性能/安全/回归关注点：", "Performance/security/regression notes:") }}
+
+## {{ tr("风险评估与回滚方案", "Risk Assessment and Rollback") }}
+- Risk:
+- {{ tr("监控/告警项：", "Monitoring/alerts:") }}
+- Rollback:
+  - [ ] {{ tr("可直接回滚提交", "direct commit rollback is possible") }}
+  - [ ] {{ tr("需要数据回滚/补偿（说明脚本/步骤）", "data rollback/compensation required (document scripts/steps)") }}
+
+## {{ tr("影响范围（Impact）", "Impact") }}
+- {{ tr("影响模块：", "Impacted modules:") }}
+- {{ tr("配置变更：", "Config changes:") }}
+- {{ tr("数据迁移：", "Data migration:") }}
+- {{ tr("兼容性（是否 breaking）：", "Compatibility (breaking or not):") }}
+
+## {{ tr("Reviewer Checklist（给审阅者）", "Reviewer Checklist") }}
+- [ ] {{ tr("Spec/ADR 引用完整", "Spec/ADR references are complete") }}
+- [ ] {{ tr("变更与 Spec 范围一致（Non-Goals 未被误实现）", "Change aligns with Spec scope (Non-Goals not accidentally implemented)") }}
+- [ ] {{ tr("AC 覆盖充分且证据可复现", "AC coverage is sufficient and evidence is reproducible") }}
+- [ ] {{ tr("风险与回滚方案清晰", "Risk and rollback plan is clear") }}
+- [ ] {{ tr("文档/变更日志已更新（如需要）", "Docs/changelog updated if needed") }}

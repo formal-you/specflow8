@@ -22,12 +22,16 @@ class GitCommit:
 
 
 def _run_git(root: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
-    proc = subprocess.run(
-        ["git", *args],
-        cwd=root,
-        capture_output=True,
-        text=True,
-    )
+    try:
+        proc = subprocess.run(
+            ["git", *args],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except subprocess.TimeoutExpired:
+        raise RuntimeError("git command timed out after 30s")
     if check and proc.returncode != 0:
         detail = (proc.stderr or proc.stdout).strip() or "git command failed."
         raise RuntimeError(detail)

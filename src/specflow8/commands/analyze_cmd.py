@@ -7,6 +7,7 @@ import typer
 
 from specflow8.config import load_config
 from specflow8.models import QualityFinding
+from specflow8.profiles import resolve_profile
 from specflow8.rule_engine import RuleEngine, build_context
 from specflow8.rule_schema import MODES, load_rules
 from specflow8.workflow import ensure_docs, rule_root
@@ -18,9 +19,11 @@ def _serialize_findings(
     feature: str | None,
     run_all: bool,
     enforce_commit_trace: bool,
+    profile_id: str,
 ) -> dict[str, object]:
-    payload = {
+    return {
         "mode": mode,
+        "profile": profile_id,
         "feature": feature,
         "all": run_all,
         "enforce_commit_trace": enforce_commit_trace,
@@ -43,7 +46,6 @@ def _serialize_findings(
             for f in findings
         ],
     }
-    return payload
 
 
 def register(app: typer.Typer) -> None:
@@ -85,6 +87,13 @@ def register(app: typer.Typer) -> None:
             else enforce_commit_trace
         )
 
+        # Resolve active profile and merge rule overrides
+        preset = resolve_profile(cfg.project.scale, cfg.project.type)
+        # Profile overrides first; user config overrides win on conflict
+        merged_overrides: dict[str, dict[str, str]] = {}
+        merged_overrides.update(preset.rule_overrides)
+        merged_overrides.update(cfg.analyze.rule_overrides)
+
         rules, schema_errors = load_rules(rule_root())
         if schema_errors:
             for err in schema_errors:
@@ -100,6 +109,8 @@ def register(app: typer.Typer) -> None:
             enforce_commit_trace=commit_trace_enabled,
             git_log_depth=max(1, cfg.analyze.git_log_depth),
             clarification_limit=cfg.clarification_limit,
+            required_docs=preset.docs_core,
+            rule_overrides=merged_overrides,
         )
         findings = engine.run(ctx)
         if not findings:
@@ -125,6 +136,7 @@ def register(app: typer.Typer) -> None:
                         feature=feature,
                         run_all=all,
                         enforce_commit_trace=commit_trace_enabled,
+                        profile_id=preset.profile_id,
                     ),
                     ensure_ascii=False,
                 )
@@ -139,7 +151,8 @@ def register(app: typer.Typer) -> None:
             warn_count = len([f for f in findings if f.severity == "warn"])
             error_count = len([f for f in findings if f.severity == "error"])
             typer.echo(
-                f"Summary: info={info_count} warn={warn_count} error={error_count} mode={mode_value}"
+                f"Summary: info={info_count} warn={warn_count} error={error_count} "
+                f"mode={mode_value} profile={preset.profile_id}"
             )
 
         has_error = any(f.severity == "error" for f in findings)

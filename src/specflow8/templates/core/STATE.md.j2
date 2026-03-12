@@ -12,3 +12,22 @@
 ## {{ tr("快照", "Snapshot") }}
 - Date: {{ today }}
 - {{ tr("Status: 已初始化", "Status: Initialized") }}
+
+## {{ tr("状态模板（强约束）", "State Template (Strict)") }}
+- Feature: `F-XXX`
+- Stage: `specify|plan|tasks|decide|implement|review`
+- Owner:
+- UpdatedAt: {{ today }}
+
+### {{ tr("执行状态", "Execution Status") }}
+| Item | Value | Evidence |
+|---|---|---|
+| {{ tr("完成任务", "Completed tasks") }} | `T-XXX,...` | {{ tr("提交/日志/报告链接", "Commit/log/report links") }} |
+| {{ tr("关联决策", "Linked ADRs") }} | `ADR-XXX,...` | {{ tr("ADR 条目链接", "ADR entry links") }} |
+| {{ tr("风险状态", "Risk status") }} | {{ tr("low/medium/high", "low/medium/high") }} | {{ tr("风险评估依据", "Risk assessment evidence") }} |
+| {{ tr("回滚可用性", "Rollback readiness") }} | {{ tr("ready/partial/not-ready", "ready/partial/not-ready") }} | {{ tr("回滚演练/步骤", "Rollback drill/steps") }} |
+
+### {{ tr("门禁结果", "Gate Results") }}
+- Analyze: `specflow8 analyze --mode strict --enforce-commit-trace`
+- {{ tr("阻塞项", "Blocking findings") }}:
+- {{ tr("下一步动作", "Next actions") }}:

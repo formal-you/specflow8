@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
 
-from specflow8.constants import CORE_DOCS
+from specflow8.constants import CORE_DOCS, PR_TEMPLATE_DOC
 from specflow8.git_trace import (
     commit_matches_template,
     has_uncommitted_doc_changes,
@@ -45,6 +45,10 @@ class AnalyzeContext:
     tasks_by_feature: dict[str, list[dict[str, str]]] = field(default_factory=dict)
     decisions_by_feature: dict[str, list[dict[str, str]]] = field(default_factory=dict)
     _cache: dict[str, Any] = field(default_factory=dict)
+    #: Documents that the active profile requires to exist (profile-aware subset)
+    required_docs: list[str] = field(default_factory=list)
+    #: Per-rule severity overrides from config (merged from profile + user config)
+    rule_overrides: dict[str, dict[str, str]] = field(default_factory=dict)
 
 
 Checker = Callable[[ExecutableRule, AnalyzeContext], list[dict[str, Any]]]
@@ -61,6 +65,7 @@ def checker_registry() -> dict[str, Checker]:
         "dependency_cycle": _check_dependency_cycle,
         "commit_trace": _check_commit_trace,
         "boundary_violation": _check_boundary_violation,
+        "pr_template": _check_pr_template,
     }
 
 
@@ -72,6 +77,8 @@ def build_context(
     enforce_commit_trace: bool,
     git_log_depth: int,
     clarification_limit: int,
+    required_docs: list[str] | None = None,
+    rule_overrides: dict[str, dict[str, str]] | None = None,
 ) -> AnalyzeContext:
     docs = {doc: read_text(root / doc) for doc in CORE_DOCS}
     all_ids = all_feature_ids(root)
@@ -104,6 +111,9 @@ def build_context(
         tasks_by_feature[fid] = task_rows
         decisions_by_feature[fid] = decision_rows
 
+    # Default required_docs to CORE_DOCS if no profile restriction given
+    _required_docs = list(required_docs) if required_docs else list(CORE_DOCS)
+
     return AnalyzeContext(
         root=root,
         mode=mode,
@@ -119,6 +129,8 @@ def build_context(
         decisions_schema=decisions_schema,
         tasks_by_feature=tasks_by_feature,
         decisions_by_feature=decisions_by_feature,
+        required_docs=_required_docs,
+        rule_overrides=dict(rule_overrides) if rule_overrides else {},
     )
 
 
@@ -140,10 +152,27 @@ class RuleEngine:
             checker = self._registry.get(rule.checker)
             if checker is None:
                 continue
-            severity = _severity_for_mode(rule, ctx.mode)
+            severity = _severity_for_mode(rule, ctx.mode, ctx.rule_overrides)
             if severity == "off":
                 continue
-            for issue in checker(rule, ctx):
+            # Exception isolation: one broken checker must not abort the rest
+            try:
+                issues = checker(rule, ctx)
+            except Exception as exc:  # noqa: BLE001
+                findings.append(
+                    QualityFinding(
+                        code="CHECKER_ERROR",
+                        severity="warn",
+                        doc="*",
+                        feature_id=None,
+                        message=f"Checker '{rule.checker}' raised an error: {exc}",
+                        suggestion="Report this as a specflow8 bug or check your config.",
+                        stage=rule.stage,
+                        rule_id=rule.source_file,
+                    )
+                )
+                continue
+            for issue in issues:
                 payload = dict(issue)
                 payload.setdefault("doc", "*")
                 payload.setdefault("feature_id", None)
@@ -171,7 +200,16 @@ def _feature_body(content: str, feature_id: str) -> str:
     return block
 
 
-def _severity_for_mode(rule: ExecutableRule, mode: GovernanceMode) -> str:
+def _severity_for_mode(
+    rule: ExecutableRule,
+    mode: GovernanceMode,
+    overrides: dict[str, dict[str, str]] | None = None,
+) -> str:
+    """Return effective severity, applying any per-rule overrides."""
+    if overrides:
+        rule_ov = overrides.get(rule.check_id)
+        if rule_ov and mode in rule_ov:
+            return rule_ov[mode]
     return rule.severity_by_mode.get(mode, "off")
 
 
@@ -209,7 +247,9 @@ def _check_doc_existence(rule: ExecutableRule, ctx: AnalyzeContext) -> list[dict
         return []
 
     issues: list[dict[str, Any]] = []
-    for doc in CORE_DOCS:
+    # Profile-aware: only check documents required by the active profile
+    check_docs = ctx.required_docs if ctx.required_docs else CORE_DOCS
+    for doc in check_docs:
         if not (ctx.root / doc).exists():
             issues.append({"doc": doc, "feature_id": ctx.feature})
     return issues
@@ -482,4 +522,44 @@ def _check_commit_trace(rule: ExecutableRule, ctx: AnalyzeContext) -> list[dict[
                 commit_matches_template(commit, fid) for commit in feature_commits
             ):
                 issues.append({"doc": "git log", "feature_id": fid})
+    return issues
+
+
+def _check_pr_template(rule: ExecutableRule, ctx: AnalyzeContext) -> list[dict[str, Any]]:
+    kind = str(rule.params.get("kind", "missing")).strip().lower()
+    issues: list[dict[str, Any]] = []
+    path = ctx.root / PR_TEMPLATE_DOC
+    if kind == "missing":
+        if not path.exists():
+            issues.append({"doc": PR_TEMPLATE_DOC, "feature_id": ctx.feature})
+        return issues
+
+    if not path.exists():
+        return [{"doc": PR_TEMPLATE_DOC, "feature_id": ctx.feature}]
+
+    text = ctx._cache.get("pr_template_text")
+    if text is None:
+        text = read_text(path)
+        ctx._cache["pr_template_text"] = text
+
+    if kind == "required_tokens":
+        for token in rule.params.get("required_tokens", []):
+            if token not in text:
+                issues.append(
+                    {
+                        "doc": PR_TEMPLATE_DOC,
+                        "feature_id": ctx.feature,
+                        "token": token,
+                    }
+                )
+    if kind == "required_patterns":
+        for pattern in rule.params.get("required_patterns", []):
+            if re.search(pattern, text, re.MULTILINE) is None:
+                issues.append(
+                    {
+                        "doc": PR_TEMPLATE_DOC,
+                        "feature_id": ctx.feature,
+                        "pattern": pattern,
+                    }
+                )
     return issues

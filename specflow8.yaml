@@ -1,0 +1,24 @@
+version: '0.1'
+language: bilingual
+docs_core:
+- AGENTS.md
+- README.md
+- ARCHITECTURE.md
+- DOMAIN.md
+- STATE.md
+- PLAN.md
+- TASKS.md
+- DECISIONS.md
+docs_optional_enabled: false
+feature_id_pattern: F-\d{3}
+clarification_limit: 3
+governance_mode: transition
+analyze:
+  enforce_commit_trace: true
+  git_log_depth: 100
+review_cadence_defaults:
+  state: weekly
+  tasks: weekly
+  plan: milestone
+  architecture: milestone
+  decisions: milestone

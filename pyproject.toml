@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "specflow8"
-version = "0.1.0"
+version = "0.2.0"
 description = "Spec-driven workflow toolkit for 8-document SWE memory systems."
 readme = "README.md"
 requires-python = ">=3.11"

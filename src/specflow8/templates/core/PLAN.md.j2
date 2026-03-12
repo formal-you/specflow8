@@ -11,3 +11,14 @@
 
 ## {{ tr("范围", "Scope") }}
 {{ tr("仅记录未来计划，不记录执行日志。", "Future intent only. No execution logs.") }}
+
+## {{ tr("计划模板（强约束）", "Plan Template (Strict)") }}
+| PlanID | Feature | RelatedSpec | Goal | Non-Goals | Exit Criteria | Owner | Target Milestone | Risks |
+|---|---|---|---|---|---|---|---|---|
+| P-XXX | F-XXX | S-XXX | {{ tr("里程碑目标", "Milestone goal") }} | {{ tr("明确不做内容", "Explicit non-goals") }} | {{ tr("可验证退出条件", "Verifiable exit criteria") }} | {{ tr("姓名/角色", "Name/Role") }} | M-XXX/{{ tr("日期", "Date") }} | {{ tr("Top 风险及缓解", "Top risks and mitigations") }} |
+
+## {{ tr("阶段门禁", "Stage Gates") }}
+- {{ tr("specify -> plan：必须有 `S-XXX`、`F-XXX`、初版 AC 列表。", "specify -> plan: must include `S-XXX`, `F-XXX`, and initial AC list.") }}
+- {{ tr("plan -> tasks：每个可执行输出必须映射到至少 1 个任务。", "plan -> tasks: each deliverable must map to at least 1 task.") }}
+- {{ tr("tasks -> decide：涉及架构/接口/数据/安全时必须产出 ADR。", "tasks -> decide: ADR is mandatory for architecture/interface/data/security changes.") }}
+- {{ tr("实现前必须通过 `specflow8 analyze --mode strict --enforce-commit-trace`。", "Before implementation, pass `specflow8 analyze --mode strict --enforce-commit-trace`.") }}

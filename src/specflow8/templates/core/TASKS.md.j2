@@ -9,7 +9,18 @@
   - Upstream: PLAN.md, STATE.md
   - Downstream: STATE.md
 
+## {{ tr("任务治理约束", "Task Governance Constraints") }}
+- {{ tr("每条任务必须包含：`ID`、`Feature`、`RelatedPlan`、`Evidence`、`DoD`。", "Each task must include: `ID`, `Feature`, `RelatedPlan`, `Evidence`, and `DoD`.") }}
+- {{ tr("`RelatedADR` 为空时必须填写 `WaiverReason`。", "If `RelatedADR` is empty, `WaiverReason` is mandatory.") }}
+- {{ tr("`DependsOn` 仅允许 `T-XXX` 或 `None`，不得形成环。", "`DependsOn` only allows `T-XXX` or `None`, and must not form cycles.") }}
+- {{ tr("状态流转仅允许：`todo -> in_progress -> done`（或 `blocked`）。", "Status flow allowed only: `todo -> in_progress -> done` (or `blocked`).") }}
+
 ## {{ tr("任务模板（必填字段）", "Task Template (Required Fields)") }}
 | ID | Feature | Title | Priority | Status | Owner | Due | DependsOn | RelatedPlan | RelatedADR | Evidence | DoD | WaiverReason |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | T-XXX | F-XXX | {{ tr("简短任务标题", "Short task title") }} | P0/P1/P2 | todo/in_progress/done/blocked | {{ tr("姓名/角色", "Name/Role") }} | YYYY-MM-DD | {{ tr("任务 ID 或 None", "Task IDs or None") }} | F-XXX | ADR-XXX/{{ tr("None", "None") }} | {{ tr("可验证证据", "Verifiable evidence") }} | {{ tr("可验证的完成标准", "Verifiable completion statement") }} | {{ tr("原因或 None", "Waiver reason or None") }} |
+
+## {{ tr("AC 映射模板", "AC Mapping Template") }}
+| AC-ID | RelatedTasks | Evidence |
+|---|---|---|
+| AC-001 | T-XXX,T-YYY | {{ tr("测试报告/日志/截图链接", "Test report/log/screenshot link") }} |

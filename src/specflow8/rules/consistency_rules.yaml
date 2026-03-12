@@ -72,6 +72,38 @@ rules:
     suggestion: "Record an ADR in DECISIONS.md or document a waiver in PLAN.md."
     params:
       kind: feature_no_adr_or_reason
+  - check_id: PR_TEMPLATE_MISSING
+    checker: pr_template
+    stage: traceability
+    severity_by_mode:
+      advisory: warn
+      transition: error
+      strict: error
+    message: "PR template is missing: {doc}."
+    suggestion: "Create `.github/PULL_REQUEST_TEMPLATE.md` and keep it versioned."
+    params:
+      kind: missing
+  - check_id: PR_TEMPLATE_FIELD_MISSING
+    checker: pr_template
+    stage: traceability
+    severity_by_mode:
+      advisory: warn
+      transition: warn
+      strict: error
+    message: "PR template is missing required field pattern: `{pattern}`."
+    suggestion: "Fill required traceability fields in `.github/PULL_REQUEST_TEMPLATE.md`."
+    params:
+      kind: required_patterns
+      required_patterns:
+        - "^- Feature IDs:\\s*F-XXX\\s*$"
+        - "^- Related Plan:\\s*F-XXX\\s*$"
+        - "^- Related Tasks:\\s*T-XXX\\s*$"
+        - "^- Related ADR:\\s*ADR-XXX\\s*$"
+        - "^- Stage:\\s*specify\\s*\\|\\s*plan\\s*\\|\\s*tasks\\s*\\|\\s*decide\\s*\\|\\s*implement\\s*\\|\\s*review\\s*$"
+        - "^- \\[ \\] specflow8 analyze --mode transition --enforce-commit-trace\\s*$"
+        - "^- Evidence:\\s*$"
+        - "^- Risk:\\s*$"
+        - "^- Rollback:\\s*$"
   - check_id: COMMIT_TRACE_MISSING
     checker: commit_trace
     stage: commit_trace

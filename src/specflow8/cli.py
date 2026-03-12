@@ -13,6 +13,7 @@ from .commands import (
     implement_cmd,
     init_cmd,
     plan_cmd,
+    profile_cmd,
     specify_cmd,
     state_cmd,
     tasks_cmd,
@@ -37,6 +38,7 @@ checklist_cmd.register(app)
 implement_cmd.register(app)
 commit_cmd.register(app)
 check_cmd.register(app)
+profile_cmd.register(app)
 
 
 def main() -> None:
