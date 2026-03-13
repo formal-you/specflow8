@@ -70,9 +70,13 @@ def _load_analyze(raw: Any) -> AnalyzeConfig:
                 rule_overrides[str(check_id)] = {
                     str(k): str(v) for k, v in sev_map.items()
                 }
+    try:
+        git_log_depth = int(data.get("git_log_depth", 100))
+    except (ValueError, TypeError):
+        git_log_depth = 100
     return AnalyzeConfig(
         enforce_commit_trace=bool(data.get("enforce_commit_trace", True)),
-        git_log_depth=int(data.get("git_log_depth", 100)),
+        git_log_depth=git_log_depth,
         rule_overrides=rule_overrides,
     )
 
@@ -97,7 +101,19 @@ def load_config(root: Path) -> Specflow8Config:
     path = config_path(root)
     if not path.exists():
         return Specflow8Config()
-    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as exc:
+        raise ValueError(
+            f"specflow8.yaml has invalid YAML syntax: {exc}"
+        ) from exc
+
+    try:
+        clarification_limit = int(
+            data.get("clarification_limit", DEFAULT_CLARIFICATION_LIMIT)
+        )
+    except (ValueError, TypeError):
+        clarification_limit = DEFAULT_CLARIFICATION_LIMIT
 
     return Specflow8Config(
         version=str(data.get("version", "0.2")),
@@ -108,9 +124,7 @@ def load_config(root: Path) -> Specflow8Config:
         feature_id_pattern=str(
             data.get("feature_id_pattern", DEFAULT_FEATURE_ID_PATTERN)
         ),
-        clarification_limit=int(
-            data.get("clarification_limit", DEFAULT_CLARIFICATION_LIMIT)
-        ),
+        clarification_limit=clarification_limit,
         governance_mode=str(data.get("governance_mode", "transition")),
         governance_chain=_load_governance_chain(data.get("governance_chain", {})),
         analyze=_load_analyze(data.get("analyze", {})),
