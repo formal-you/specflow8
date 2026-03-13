@@ -3,7 +3,13 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from .constants import FEATURE_END_FMT, FEATURE_START_FMT, MANUAL_END, MANUAL_START
+from .constants import (
+    DEFAULT_FEATURE_ID_PATTERN,
+    FEATURE_END_FMT,
+    FEATURE_START_FMT,
+    MANUAL_END,
+    MANUAL_START,
+)
 
 
 def read_text(path: Path) -> str:
@@ -24,7 +30,8 @@ def feature_block_regex(feature_id: str) -> re.Pattern[str]:
 
 
 def find_feature_ids(content: str) -> list[str]:
-    return sorted(set(re.findall(r"<!-- specflow8:feature:(F-\d{3}):start -->", content)))
+    pattern = rf"<!-- specflow8:feature:({DEFAULT_FEATURE_ID_PATTERN}):start -->"
+    return sorted(set(re.findall(pattern, content)))
 
 
 def extract_feature_block(content: str, feature_id: str) -> str | None:

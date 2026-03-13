@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from specflow8.profiles import (
+    is_downgrade,
     list_profiles,
     resolve_profile,
     resolve_profile_from_id,
@@ -139,7 +140,36 @@ def test_small_distributed_has_architecture():
 @pytest.mark.parametrize("pid", list_profiles())
 def test_all_profiles_have_required_doc_baseline(pid: str):
     """Every profile must include at least README.md, TASKS.md, DECISIONS.md."""
-    parts = pid.split("-", 1)
-    p = resolve_profile(parts[0], parts[1])
+    p = resolve_profile_from_id(pid)
     for must_have in ["README.md", "TASKS.md", "DECISIONS.md"]:
         assert must_have in p.docs_core, f"{pid} missing {must_have}"
+
+
+# ---- Downgrade protection tests ----
+
+
+def test_is_downgrade_detects_lower_tier():
+    assert is_downgrade("large", "small") is True
+    assert is_downgrade("large", "medium") is True
+    assert is_downgrade("medium", "small") is True
+
+
+def test_is_downgrade_returns_false_for_upgrade_or_same():
+    assert is_downgrade("small", "medium") is False
+    assert is_downgrade("small", "large") is False
+    assert is_downgrade("medium", "large") is False
+    assert is_downgrade("medium", "medium") is False
+
+
+def test_upgrade_profile_rejects_downgrade():
+    large = resolve_profile("large", "monolith")
+    with pytest.raises(ValueError, match="Cannot downgrade"):
+        upgrade_profile(large, new_scale="small")
+
+
+def test_upgrade_profile_allows_downgrade_when_flag_set():
+    large = resolve_profile("large", "monolith")
+    new_preset, new_docs = upgrade_profile(
+        large, new_scale="small", allow_downgrade=True
+    )
+    assert new_preset.scale == "small"

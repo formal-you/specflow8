@@ -196,3 +196,27 @@ def test_analyze_small_profile_does_not_report_missing_agents():
         )
         assert result.exit_code == 0
         assert "DOC_MISSING" not in result.stdout
+
+
+def test_profile_upgrade_rejects_downgrade():
+    """Downgrading from large -> small should be rejected by default."""
+    with runner.isolated_filesystem():
+        runner.invoke(
+            app, ["init", "--root", ".", "--scale", "large", "--type", "monolith"]
+        )
+        result = runner.invoke(app, ["profile", "upgrade", "--scale", "small"])
+        assert result.exit_code != 0
+        assert "Cannot downgrade" in result.output
+
+
+def test_profile_upgrade_allows_downgrade_with_flag():
+    """--allow-downgrade should permit large -> small."""
+    with runner.isolated_filesystem():
+        runner.invoke(
+            app, ["init", "--root", ".", "--scale", "large", "--type", "monolith"]
+        )
+        result = runner.invoke(
+            app, ["profile", "upgrade", "--scale", "small", "--allow-downgrade"]
+        )
+        assert result.exit_code == 0
+        assert "small-monolith" in result.stdout

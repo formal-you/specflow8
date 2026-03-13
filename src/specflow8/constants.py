@@ -36,10 +36,10 @@ REVIEW_CADENCE_DEFAULTS = {
 # ---------------------------------------------------------------------------
 
 #: Valid scale values (team size)
-SCALES = ("small", "medium", "large")
+SCALES: tuple[str, ...] = ("small", "medium", "large")
 
 #: Valid project type values (architecture)
-PROJECT_TYPES = ("monolith", "distributed", "multi-team")
+PROJECT_TYPES: tuple[str, ...] = ("monolith", "distributed", "multi-team")
 
 # Required doc set per profile ("scale-type")
 # small: keep workflow docs but skip AGENTS/SPECS to reduce governance overhead

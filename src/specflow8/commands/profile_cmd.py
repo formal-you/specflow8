@@ -10,6 +10,7 @@ from specflow8.constants import PROJECT_TYPES, SCALES
 from specflow8.profiles import (
     list_profiles,
     resolve_profile,
+    resolve_profile_from_id,
     upgrade_profile,
 )
 from specflow8.workflow import ensure_docs, normalize_language
@@ -21,34 +22,31 @@ def register(app: typer.Typer) -> None:
 
     @profile_app.command("show")
     def profile_show(
+        root: Path = typer.Option(
+            Path("."), "--root", help="Project root directory."
+        ),
         json_output: bool = typer.Option(
             False, "--json", help="Emit structured JSON output."
         ),
     ) -> None:
         """Show the current governance profile and its settings."""
-        root = Path(".").resolve()
+        root = root.resolve()
         cfg = load_config(root)
         preset = resolve_profile(cfg.project.scale, cfg.project.type)
 
         if json_output:
-            typer.echo(
-                json.dumps(
-                    {
-                        "profile": preset.profile_id,
-                        "scale": preset.scale,
-                        "type": preset.project_type,
-                        "governance_mode": preset.governance_mode,
-                        "docs_core": preset.docs_core,
-                        "enforce_commit_trace": preset.enforce_commit_trace,
-                        "clarification_limit": preset.clarification_limit,
-                        "chain_required": preset.chain_required,
-                        "chain_optional": preset.chain_optional,
-                        "rule_overrides": preset.rule_overrides,
-                    },
-                    ensure_ascii=False,
-                    indent=2,
-                )
-            )
+            _emit_json({
+                "profile": preset.profile_id,
+                "scale": preset.scale,
+                "type": preset.project_type,
+                "governance_mode": preset.governance_mode,
+                "docs_core": preset.docs_core,
+                "enforce_commit_trace": preset.enforce_commit_trace,
+                "clarification_limit": preset.clarification_limit,
+                "chain_required": preset.chain_required,
+                "chain_optional": preset.chain_optional,
+                "rule_overrides": preset.rule_overrides,
+            })
         else:
             typer.echo(f"Profile:           {preset.profile_id}")
             typer.echo(f"Scale:             {preset.scale}")
@@ -66,17 +64,20 @@ def register(app: typer.Typer) -> None:
 
     @profile_app.command("list")
     def profile_list(
+        root: Path = typer.Option(
+            Path("."), "--root", help="Project root directory."
+        ),
         json_output: bool = typer.Option(
             False, "--json", help="Emit structured JSON output."
         ),
     ) -> None:
         """List all available governance profiles."""
+        _root = root.resolve()  # noqa: F841 — reserved for future use
         profiles = list_profiles()
         if json_output:
             items = []
             for pid in profiles:
-                parts = pid.split("-", 1)
-                p = resolve_profile(parts[0], parts[1])
+                p = resolve_profile_from_id(pid)
                 items.append(
                     {
                         "profile": p.profile_id,
@@ -86,17 +87,19 @@ def register(app: typer.Typer) -> None:
                         "doc_count": len(p.docs_core),
                     }
                 )
-            typer.echo(json.dumps(items, ensure_ascii=False, indent=2))
+            _emit_json(items)
         else:
             typer.echo(f"{'Profile':<25} {'Mode':<12} {'Docs'}")
             typer.echo("-" * 55)
             for pid in profiles:
-                parts = pid.split("-", 1)
-                p = resolve_profile(parts[0], parts[1])
+                p = resolve_profile_from_id(pid)
                 typer.echo(f"{p.profile_id:<25} {p.governance_mode:<12} {len(p.docs_core)} docs")
 
     @profile_app.command("upgrade")
     def profile_upgrade(
+        root: Path = typer.Option(
+            Path("."), "--root", help="Project root directory."
+        ),
         scale: str | None = typer.Option(
             None, "--scale", help="New scale: small | medium | large."
         ),
@@ -112,9 +115,12 @@ def register(app: typer.Typer) -> None:
         dry_run: bool = typer.Option(
             False, "--dry-run", help="Preview changes without applying them."
         ),
+        allow_downgrade: bool = typer.Option(
+            False, "--allow-downgrade", help="Allow downgrading to a lower tier."
+        ),
     ) -> None:
         """Upgrade the project governance profile to a higher tier."""
-        root = Path(".").resolve()
+        root = root.resolve()
         cfg = load_config(root)
         current = resolve_profile(cfg.project.scale, cfg.project.type)
         if scale is not None and scale not in SCALES:
@@ -125,29 +131,27 @@ def register(app: typer.Typer) -> None:
             raise typer.BadParameter(
                 f"Invalid --type `{project_type}`. Allowed: {' | '.join(PROJECT_TYPES)}."
             )
-        new_preset, new_docs = upgrade_profile(
-            current,
-            new_scale=scale,
-            new_type=project_type,
-        )
+        try:
+            new_preset, new_docs = upgrade_profile(
+                current,
+                new_scale=scale,
+                new_type=project_type,
+                allow_downgrade=allow_downgrade,
+            )
+        except ValueError as exc:
+            raise typer.BadParameter(str(exc)) from exc
 
         if new_preset.profile_id == current.profile_id:
             typer.echo("Profile is already at the requested tier. No changes needed.")
             return
 
         if json_output:
-            typer.echo(
-                json.dumps(
-                    {
-                        "old_profile": current.profile_id,
-                        "new_profile": new_preset.profile_id,
-                        "new_docs": new_docs,
-                        "applied": not dry_run,
-                    },
-                    ensure_ascii=False,
-                    indent=2,
-                )
-            )
+            _emit_json({
+                "old_profile": current.profile_id,
+                "new_profile": new_preset.profile_id,
+                "new_docs": new_docs,
+                "applied": not dry_run,
+            })
         else:
             typer.echo(f"Upgrading: {current.profile_id} → {new_preset.profile_id}")
             if new_docs:
@@ -183,3 +187,8 @@ def register(app: typer.Typer) -> None:
             typer.echo(f"Created: {', '.join(created) if created else 'None'}")
             typer.echo(f"Skipped: {', '.join(skipped) if skipped else 'None'}")
             typer.echo("Profile upgrade complete.")
+
+
+def _emit_json(data: object) -> None:
+    """Emit JSON to stdout — shared helper to reduce duplication."""
+    typer.echo(json.dumps(data, ensure_ascii=False, indent=2))

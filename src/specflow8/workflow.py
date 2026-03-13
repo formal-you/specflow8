@@ -103,7 +103,10 @@ def ensure_docs(
         if target.exists() and not force:
             skipped.append(doc)
             continue
-        rel = TEMPLATE_MAP[doc]
+        rel = TEMPLATE_MAP.get(doc)
+        if rel is None:
+            skipped.append(doc)  # no template for this doc name
+            continue
         write_text(target, render_template(rel, context))
         created.append(doc)
     return created, skipped

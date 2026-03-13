@@ -28,6 +28,9 @@ from .constants import (
 # Domain types
 # ---------------------------------------------------------------------------
 
+# Scale ordering for upgrade/downgrade comparison
+SCALE_ORDER: dict[str, int] = {"small": 0, "medium": 1, "large": 2}
+
 PROFILE_MODES: dict[str, str] = {
     "small": "advisory",
     "medium": "transition",
@@ -146,18 +149,33 @@ def resolve_profile_from_id(pid: str) -> ProfilePreset:
     return resolve_profile(parts[0], parts[1])
 
 
+def is_downgrade(current_scale: str, target_scale: str) -> bool:
+    """Return True if target_scale is a lower tier than current_scale."""
+    return SCALE_ORDER.get(target_scale, 1) < SCALE_ORDER.get(current_scale, 1)
+
+
 def upgrade_profile(
     current: ProfilePreset,
     new_scale: str | None = None,
     new_type: str | None = None,
+    allow_downgrade: bool = False,
 ) -> tuple[ProfilePreset, list[str]]:
     """
     Upgrade a profile to a new scale/type.
 
     Returns (new_preset, list_of_new_docs_to_add).
+    Raises ValueError if the target is a lower tier (downgrade)
+    unless *allow_downgrade* is True.
     """
     target_scale = new_scale or current.scale
     target_type = new_type or current.project_type
+
+    if not allow_downgrade and is_downgrade(current.scale, target_scale):
+        raise ValueError(
+            f"Cannot downgrade from '{current.scale}' to '{target_scale}'. "
+            f"Use --allow-downgrade to force."
+        )
+
     new_preset = resolve_profile(target_scale, target_type)
     new_docs = [d for d in new_preset.docs_core if d not in current.docs_core]
     return new_preset, new_docs
